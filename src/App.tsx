@@ -1,52 +1,36 @@
-import React, { useCallback, useLayoutEffect, useState } from "react"
+import React, { useState } from "react"
+import { useOscillator } from "./hooks"
 
 
 
 
-function ColorBox( { color }: { color: string } )
-{
-	return <div style={{ background: color, width: "100vw", height: "100vh" }}/>
+const getInitialState = () => ({
+	// runOsc:  true, // runOsc & playing are duplicates, osc only runs if game runs
+	// playing: false, // runOsc & playing are duplicates, osc only runs if game runs
+	// speed:    0.003, // Speed could be infered by: mode [noob, hardcore, the rock]
+	// life:     0,
+	// level:    1,
+	// oscStart: Math.random(),
+	// target:   Math.random(),
+});
+
+// States are:
+type awaiting = {}
+
+type playing = {
+	// mode: "noob" | "ok" | "hardcore" | "the Rock" // mode selector is for later
+	currentHue: number,
+	targetHue: number,
+	life: number,
+	level: number
 }
 
-
-function useLoop( { running, callback }: { running: boolean, callback: () => void } ): void
-{
-	const [ id, setId ] = useState<DOMHighResTimeStamp>( 0 )
-	
-	useLayoutEffect( () => {
-		if ( !running )
-			return
-		
-		const _nextId: DOMHighResTimeStamp = window.requestAnimationFrame( () => {
-			callback()
-			
-			setId( _nextId )
-		} )
-		
-		return () => window.cancelAnimationFrame( id || 0 )
-	}, [ running, id, callback ] )
+type defeated = {
+	level: number,
+	// mode: "noob" | "ok" | "hardcore" | "the Rock" // (maybe if i add it)
 }
 
-
-function useOscillator( { running, speed, defaultValue }: { running: boolean, speed: number, defaultValue: number } ): number
-{
-	const [ num, setNum ] = useState<number>( defaultValue ),
-	      callback        = useCallback(
-		      () =>
-			      setNum( num =>
-				      num >= 1 ?
-				      0 :
-				      num + speed ),
-		      [ speed ],
-	      ) // Maintains the id of the function to avoid useLoop identifying it as new function on every render
-	
-	useLoop( {
-		running,
-		callback,
-	} )
-	
-	return num
-}
+type gameState = awaiting | playing | defeated
 
 
 export function App()
@@ -69,5 +53,11 @@ export function App()
 			<ColorBox color={`hsl(${hue}, 100%, 50%)`}/>
 		</div>
 	)
+}
+
+
+function ColorBox( { color }: { color: string } )
+{
+	return <div style={{ background: color, width: "100vw", height: "100vh" }}/>
 }
 
