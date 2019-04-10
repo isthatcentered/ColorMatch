@@ -1,24 +1,14 @@
-import React, { useState } from "react"
-import { useOscillator } from "./hooks"
+import React, { ReactElement } from "react"
 
 
-
-
-const getInitialState = () => ({
-	// runOsc:  true, // runOsc & playing are duplicates, osc only runs if game runs
-	// playing: false, // runOsc & playing are duplicates, osc only runs if game runs
-	// speed:    0.003, // Speed could be infered by: mode [noob, hardcore, the rock]
-	// life:     0,
-	// level:    1,
-	// oscStart: Math.random(),
-	// target:   Math.random(),
-});
 
 // States are:
-type awaiting = {}
+type awaiting = {
+	state: "awaiting"
+}
 
 type playing = {
-	// mode: "noob" | "ok" | "hardcore" | "the Rock" // mode selector is for later
+	state: "playing"
 	currentHue: number,
 	targetHue: number,
 	life: number,
@@ -26,33 +16,71 @@ type playing = {
 }
 
 type defeated = {
+	state: "defeated"
 	level: number,
-	// mode: "noob" | "ok" | "hardcore" | "the Rock" // (maybe if i add it)
 }
 
 type gameState = awaiting | playing | defeated
 
+const getInitialState = (): gameState => ({ state: "awaiting" })
+
 
 export function App()
 {
-	const [ running, setRunning ] = useState<boolean>( true ),
-	      hue                     = 360 * useOscillator( { running, defaultValue: Math.random(), speed: .002 } )
+	// const state                   = getInitialState(),
+	//       [ running, setRunning ] = useState<boolean>( true ),
+	//       hue                     = 360 * useOscillator( { running, defaultValue: Math.random(), speed: .002 } )
+	
+	const { state, ...data } = getInitialState()
 	
 	return (
 		<div className="App">
 			
-			<div style={{ padding: 10 }}>
-				<button onClick={() => setRunning( running => !running )}>
-					{running ?
-					 "stop" :
-					 "start"}
-				</button>
-				{" "} {hue}
-			</div>
+			{((): ReactElement => {
+				switch ( state ) {
+					case "awaiting":
+						return <HomeScreen/>
+					
+					case "playing":
+						return <div/>
+					
+					case "defeated":
+						return <div/>
+					
+					default:
+						const shouldNotBeReached: never = state
+						return <div/>
+				}
+			})()}
 			
-			<ColorBox color={`hsl(${hue}, 100%, 50%)`}/>
+			{/*<div style={{ padding: 10 }}>*/}
+			{/*<button onClick={() => setRunning( running => !running )}>*/}
+			{/*{running ?*/}
+			{/*"stop" :*/}
+			{/*"start"}*/}
+			{/*</button>*/}
+			{/*{" "} {hue}*/}
+			{/*</div>*/}
+			{/**/}
+			{/*<ColorBox color={`hsl(${hue}, 100%, 50%)`}/>*/}
 		</div>
 	)
+}
+
+
+function HomeScreen()
+{
+	return (
+		<div>
+			<header>
+				<h1>Color match!</h1>
+				<p>Level 1</p>
+			</header>
+			<main>
+				<h2 className="uppercase">Match the colors!</h2>
+				<button>Start game</button>
+			</main>
+		</div>)
 }
 
 

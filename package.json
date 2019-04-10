@@ -28,5 +28,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "emotion": "^10.0.9",
+    "node-sass": "^4.11.0",
+    "tailwindcss": "^0.7.4"
   }
 }
