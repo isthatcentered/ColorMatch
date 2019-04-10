@@ -1,4 +1,5 @@
 import React, { ReactElement } from "react"
+import { HomeScreen } from "./HomeScreen"
 
 
 
@@ -65,22 +66,6 @@ export function App()
 			{/*<ColorBox color={`hsl(${hue}, 100%, 50%)`}/>*/}
 		</div>
 	)
-}
-
-
-function HomeScreen()
-{
-	return (
-		<div>
-			<header>
-				<h1>Color match!</h1>
-				<p>Level 1</p>
-			</header>
-			<main>
-				<h2 className="uppercase">Match the colors!</h2>
-				<button>Start game</button>
-			</main>
-		</div>)
 }
 
 
