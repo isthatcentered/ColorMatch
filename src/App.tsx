@@ -60,24 +60,9 @@ export function App()
 						return <div/>
 				}
 			})()}
-			
-			{/*<div style={{ padding: 10 }}>*/}
-			{/*<button onClick={() => setRunning( running => !running )}>*/}
-			{/*{running ?*/}
-			{/*"stop" :*/}
-			{/*"start"}*/}
-			{/*</button>*/}
-			{/*{" "} {hue}*/}
-			{/*</div>*/}
-			{/**/}
-			{/*<ColorBox color={`hsl(${hue}, 100%, 50%)`}/>*/}
 		</div>
 	)
 }
 
 
-function ColorBox( { color }: { color: string } )
-{
-	return <div style={{ background: color, width: "100vw", height: "100vh" }}/>
-}
 
