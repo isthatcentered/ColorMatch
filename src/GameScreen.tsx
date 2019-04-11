@@ -1,5 +1,5 @@
 import { playing } from "./App"
-import React from "react"
+import React, { HTMLAttributes } from "react"
 
 
 
@@ -34,11 +34,21 @@ export function GameScreen( { state: { targetHue, currentHue, level } }: GameScr
 }
 
 
-export function ColorBox( { color }: { color: string } )
+interface ColorBoxProps
+{
+	color: string
+}
+
+
+export function ColorBox( { color, className = "", style = {}, ...props }: ColorBoxProps & HTMLAttributes<HTMLDivElement> )
 {
 	return (
 		<div
-			className="h-full rounded-xl flex-grow"
-			style={{ background: color, borderRadius: 20 }}
+			{...props}
+			className={className + ` h-full rounded-xl flex-grow`}
+			style={{ background: color, borderRadius: 20, ...style }}
 		/>)
 }
+
+
+// Can have an OscilliatingCollorBox
