@@ -1,5 +1,6 @@
 import { playing } from "./App"
 import React, { HTMLAttributes } from "react"
+import { useOscillator } from "./hooks"
 
 
 
@@ -24,7 +25,7 @@ export function GameScreen( { state: { targetHue, currentHue, level } }: GameScr
 				
 				<div className="pt-2"/>
 				
-				<ColorBox color={`hsl(${currentHue}, 100%, 50%)`}/>
+				<ShiftingColorBox defaultHue={currentHue}/>
 				
 				<button className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
 					Stop
@@ -51,4 +52,17 @@ export function ColorBox( { color, className = "", style = {}, ...props }: Color
 }
 
 
-// Can have an OscilliatingCollorBox
+interface ShiftingColorBoxProps
+{
+	defaultHue: number
+}
+
+
+export function ShiftingColorBox( { defaultHue, ...props }: ShiftingColorBoxProps & HTMLAttributes<HTMLDivElement> )
+{
+	const hue = 360 * useOscillator( { running: true, defaultValue: (defaultHue / 360), speed: .002 } )
+	
+	return <ColorBox {...props} color={`hsl(${hue}, 100%, 50%)`}/>
+}
+
+

@@ -36,9 +36,6 @@ const getInitialState = (): gameState => ({
 
 export function App()
 {
-	// const state                   = getInitialState(),
-	//       [ running, setRunning ] = useState<boolean>( true ),
-	//       hue                     = 360 * useOscillator( { running, defaultValue: Math.random(), speed: .002 } )
 	
 	const state = getInitialState()
 	
