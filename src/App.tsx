@@ -6,11 +6,11 @@ import { GameOverScreen } from "./GameOverScreen"
 
 // States are:
 export type awaiting = {
-	state: "awaiting"
+	type: "awaiting"
 }
 
 export type playing = {
-	state: "playing"
+	type: "playing"
 	currentHue: number,
 	targetHue: number,
 	life: number,
@@ -18,13 +18,13 @@ export type playing = {
 }
 
 export type defeated = {
-	state: "defeated"
+	type: "defeated"
 	level: number,
 }
 
 export type gameState = awaiting | playing | defeated
 
-const getInitialState = (): gameState => ({ state: "defeated", level: 6 })
+const getInitialState = (): gameState => ({ type: "defeated", level: 6 })
 
 
 export function App()
@@ -33,13 +33,12 @@ export function App()
 	//       [ running, setRunning ] = useState<boolean>( true ),
 	//       hue                     = 360 * useOscillator( { running, defaultValue: Math.random(), speed: .002 } )
 	
-	const { state, ...data } = getInitialState()
+	const state = getInitialState()
 	
 	return (
 		<div className="App">
-			
 			{((): ReactElement => {
-				switch ( state ) {
+				switch ( state.type ) {
 					case "awaiting":
 						return <HomeScreen/>
 					
@@ -47,7 +46,7 @@ export function App()
 						return <div/>
 					
 					case "defeated":
-						return <GameOverScreen  />
+						return <GameOverScreen state={state}/>
 					
 					default:
 						const shouldNotBeReached: never = state
