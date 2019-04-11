@@ -25,7 +25,7 @@ export function GameScreen( { state: { targetHue, currentHue, level } }: GameScr
 				
 				<div className="pt-2"/>
 				
-				<ShiftingColorBox defaultHue={currentHue}/>
+				<ShiftingColorBox defaultHue={currentHue} className="cursor-pointer"/>
 				
 				<button className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
 					Stop
