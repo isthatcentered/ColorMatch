@@ -1,14 +1,15 @@
 import React, { ReactElement } from "react"
 import { HomeScreen } from "./HomeScreen"
+import { GameOverScreen } from "./GameOverScreen"
 
 
 
 // States are:
-type awaiting = {
+export type awaiting = {
 	state: "awaiting"
 }
 
-type playing = {
+export type playing = {
 	state: "playing"
 	currentHue: number,
 	targetHue: number,
@@ -16,14 +17,14 @@ type playing = {
 	level: number
 }
 
-type defeated = {
+export type defeated = {
 	state: "defeated"
 	level: number,
 }
 
-type gameState = awaiting | playing | defeated
+export type gameState = awaiting | playing | defeated
 
-const getInitialState = (): gameState => ({ state: "awaiting" })
+const getInitialState = (): gameState => ({ state: "defeated", level: 6 })
 
 
 export function App()
@@ -46,7 +47,7 @@ export function App()
 						return <div/>
 					
 					case "defeated":
-						return <div/>
+						return <GameOverScreen  />
 					
 					default:
 						const shouldNotBeReached: never = state
