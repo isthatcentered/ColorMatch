@@ -1,6 +1,7 @@
 import React, { ReactElement } from "react"
 import { HomeScreen } from "./HomeScreen"
 import { GameOverScreen } from "./GameOverScreen"
+import { GameScreen } from "./GameScreen"
 
 
 
@@ -24,7 +25,13 @@ export type defeated = {
 
 export type gameState = awaiting | playing | defeated
 
-const getInitialState = (): gameState => ({ type: "defeated", level: 6 })
+const getInitialState = (): gameState => ({
+	type:       "playing",
+	currentHue: 100,
+	level:      1,
+	life:       100,
+	targetHue:  190,
+})
 
 
 export function App()
@@ -43,7 +50,7 @@ export function App()
 						return <HomeScreen/>
 					
 					case "playing":
-						return <div/>
+						return <GameScreen state={state}/>
 					
 					case "defeated":
 						return <GameOverScreen state={state}/>
