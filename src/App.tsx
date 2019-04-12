@@ -1,43 +1,22 @@
-import React, { ReactElement } from "react"
+import React, { ReactElement, Reducer, useReducer } from "react"
 import { HomeScreen } from "./HomeScreen"
 import { GameOverScreen } from "./GameOverScreen"
 import { GameScreen } from "./GameScreen"
+import { gameActions, gameState } from "./types"
 
 
 
-// States are:
-export type awaiting = {
-	type: "awaiting"
+
+const getInitialState = (): gameState => ({ type: "playing", currentHue: 0, level: 0, life: 0, targetHue: 0 })
+
+const appReducer: Reducer<gameState, gameActions> = function (): gameState {
+	return getInitialState()
 }
-
-export type playing = {
-	type: "playing"
-	currentHue: number,
-	targetHue: number,
-	life: number,
-	level: number
-}
-
-export type defeated = {
-	type: "defeated"
-	level: number,
-}
-
-export type gameState = awaiting | playing | defeated
-
-const getInitialState = (): gameState => ({
-	type:       "playing",
-	currentHue: 100,
-	level:      1,
-	life:       100,
-	targetHue:  190,
-})
 
 
 export function App()
 {
-	
-	const state = getInitialState()
+	const [ state, dispatch ] = useReducer( appReducer, getInitialState() )
 	
 	return (
 		<div className="App">
@@ -47,7 +26,8 @@ export function App()
 						return <HomeScreen/>
 					
 					case "playing":
-						return <GameScreen state={state}/>
+						return <GameScreen dispatch={dispatch}
+						                   state={state}/>
 					
 					case "defeated":
 						return <GameOverScreen state={state}/>

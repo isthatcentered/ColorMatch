@@ -1,6 +1,7 @@
-import { playing } from "./App"
+import { playing } from "./types"
 import React, { HTMLAttributes } from "react"
 import { useOscillator } from "./hooks"
+import { gameActions } from "./types"
 
 
 
@@ -8,6 +9,8 @@ import { useOscillator } from "./hooks"
 interface GameScreenProps
 {
 	state: playing
+	
+	dispatch( action: gameActions ): void
 }
 
 
@@ -25,7 +28,8 @@ export function GameScreen( { state: { targetHue, currentHue, level } }: GameScr
 				
 				<div className="pt-2"/>
 				
-				<ShiftingColorBox defaultHue={currentHue} className="cursor-pointer"/>
+				<ShiftingColorBox defaultHue={currentHue}
+				                  className="cursor-pointer"/>
 				
 				<button className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
 					Stop
