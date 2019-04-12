@@ -13,7 +13,7 @@ interface GameScreenProps
 }
 
 
-export function GameScreen( { state: { targetHue, currentHue, level }, dispatch }: GameScreenProps )
+export function GameScreen( { state: { targetHue, currentHue, level, life }, dispatch }: GameScreenProps )
 {
 	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
 		dispatch( { type: "ColorSubmittedAction", payload: hue } )
@@ -26,8 +26,11 @@ export function GameScreen( { state: { targetHue, currentHue, level }, dispatch 
 				<p className="ml-auto text-4xl font-bold">Level {level}</p>
 			</header>
 			
-			<main className="text-center flex-grow flex flex-col px-2">
-				<ColorBox hue={targetHue}/>
+			<main className="text-center flex-grow flex flex-col items-center px-2">
+				<ColorBox
+					hue={targetHue}
+					style={{ width: `${life}%` }}
+				/>
 				
 				<div className="pt-2"/>
 				
@@ -35,6 +38,7 @@ export function GameScreen( { state: { targetHue, currentHue, level }, dispatch 
 					defaultHue={currentHue}
 					onColorClick={handleClickColor}
 					className="cursor-pointer"
+					style={{ width: `${life}%` }}
 				/>
 				
 				<button onClick={() => dispatch( { type: "QuitGameAction" } )}

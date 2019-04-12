@@ -40,9 +40,6 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 					const points = ScorePoints.given( state.targetHue, action.payload ),
 					      life   = Math.min( Math.max( 0, state.life + points ), 100 ) // Math.max 'cause score can be negative
 					
-					
-					console.log( points, life )
-					
 					return life > 0 ?
 					       { ...state, life } :
 					       { type: "defeated", level: state.level }
