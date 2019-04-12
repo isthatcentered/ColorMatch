@@ -1,6 +1,7 @@
 import { gameActions, playing } from "./types"
 import React, { HTMLAttributes } from "react"
 import { useOscillator } from "./hooks"
+import { Hue } from "./Hue"
 
 
 
@@ -15,10 +16,8 @@ interface GameScreenProps
 
 export function GameScreen( { state: { targetHue, currentHue, level }, dispatch }: GameScreenProps )
 {
-	function handleClickColor( hue: number )
-	{
+	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
 		dispatch( { type: "ColorSubmittedAction", payload: hue } )
-	}
 	
 	
 	return (
@@ -29,7 +28,7 @@ export function GameScreen( { state: { targetHue, currentHue, level }, dispatch 
 			</header>
 			<main className="text-center flex-grow flex flex-col px-2">
 				
-				<ColorBox color={`hsl(${targetHue}, 100%, 50%)`}/>
+				<ColorBox hue={targetHue}/>
 				
 				<div className="pt-2"/>
 				
@@ -47,32 +46,33 @@ export function GameScreen( { state: { targetHue, currentHue, level }, dispatch 
 
 interface ColorBoxProps
 {
-	color: string
+	hue: Hue
 }
 
 
-export function ColorBox( { color, className = "", style = {}, ...props }: ColorBoxProps & HTMLAttributes<HTMLDivElement> )
+export function ColorBox( { hue, className = "", style = {}, ...props }: ColorBoxProps & HTMLAttributes<HTMLDivElement> )
 {
 	return (
 		<div
 			{...props}
 			className={className + ` h-full rounded-xl flex-grow`}
-			style={{ background: color, borderRadius: 20, ...style }}
+			style={{ background: `hsl(${hue.value}, 100%, 50%)`, borderRadius: 20, ...style }}
 		/>)
 }
 
 
 interface ShiftingColorBoxProps
 {
-	defaultHue: number
+	defaultHue: Hue
 	
-	onColorClick( hue: number ): any
+	onColorClick( hue: Hue ): any
 }
 
 
 export function ShiftingColorBox( { defaultHue, onColorClick, ...props }: ShiftingColorBoxProps & HTMLAttributes<HTMLDivElement> )
 {
-	const hue = 360 * useOscillator( { running: true, defaultValue: (defaultHue / 360), speed: .002 } )
+	const value = useOscillator( { running: true, defaultValue: (defaultHue.value / Hue.MAX), speed: .002 } ),
+	      hue   = Hue.from( value * Hue.MAX )
 	
 	
 	function handleClick()
@@ -81,7 +81,7 @@ export function ShiftingColorBox( { defaultHue, onColorClick, ...props }: Shifti
 	}
 	
 	
-	return <ColorBox {...props} color={`hsl(${hue}, 100%, 50%)`}
+	return <ColorBox {...props} hue={hue}
 	                 onClick={handleClick}/>
 }
 

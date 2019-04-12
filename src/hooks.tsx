@@ -30,7 +30,7 @@ export function useOscillator( { running, speed, defaultValue }: { running: bool
 	      callback        = useCallback(
 		      () =>
 			      setNum( num =>
-				      num >= 1 ?
+				      (num + speed) >= 1 ?
 				      0 :
 				      num + speed ),
 		      [ speed ],

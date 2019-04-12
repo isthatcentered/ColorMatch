@@ -1,35 +1,28 @@
-export function computeShortestHueDistance( target: number, actual: number ): number
-{
-	const hueWheelLength             = 360,
-	      distance                   = Math.abs( actual - target ),
-	      startOfWheelToLeftValue    = Math.min( actual, target ), // target can't be both the smallest and the highest,
-	      rightValueToEndOfWheelStep = Math.abs( Math.max( actual, target ) - hueWheelLength ), // so we automatically get the opposits
-	      revolvedDistance           = startOfWheelToLeftValue + rightValueToEndOfWheelStep
-	
-	return Math.min( distance, revolvedDistance )
-}
+import { Hue } from "./Hue"
+
+
 
 
 describe( `Actual > target `, () => {
-	test.each( [
-		[ 200, 0, 160 ],
-		[ 200, 45, 155 ],
-		[ 200, 150, 50 ],
-	] )( `computeShortestHueDistance(%i,%i) => %i `, ( target, actual, _expected ) => {
-		expect( computeShortestHueDistance( target, actual ) ).toBe( _expected )
-	} )
+	;[
+		{ target: Hue.from( 200 ), actual: Hue.from( 0 ), expected: 160 },
+		{ target: Hue.from( 200 ), actual: Hue.from( 45 ), expected: 155 },
+		{ target: Hue.from( 200 ), actual: Hue.from( 150 ), expected: 50 },
+	].forEach( ( { target, actual, expected } ) =>
+		test( `Shortest distance to ${target.value} from ${actual.value} => ${expected}`, () =>
+			expect( actual.shortestDistanceTo( target ) ).toBe( expected ),
+		) )
 } )
 
-describe( `Target > actual`, () => {
-	test.each( [
-		[ 0, 200, 160 ],
-		[ 45, 200, 155 ],
-		[ 150, 200, 50 ],
-	] )( `computeShortestHueDistance(%i,%i) => %i `, ( target, actual, _expected ) => {
-		expect( computeShortestHueDistance( target, actual ) ).toBe( _expected )
-	} )
+describe( `Target > actual `, () => {
+	;[
+		{ target: Hue.from( 0 ), actual: Hue.from( 200 ), expected: 160 },
+		{ target: Hue.from( 45 ), actual: Hue.from( 200 ), expected: 155 },
+		{ target: Hue.from( 150 ), actual: Hue.from( 200 ), expected: 50 },
+	].forEach( ( { target, actual, expected } ) =>
+		test( `Shortest distance to ${target.value} from ${actual.value} => ${expected}`, () =>
+			expect( actual.shortestDistanceTo( target ) ).toBe( expected ),
+		) )
 } )
-
-
 
 export default undefined

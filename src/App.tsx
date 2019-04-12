@@ -3,11 +3,18 @@ import { HomeScreen } from "./HomeScreen"
 import { GameOverScreen } from "./GameOverScreen"
 import { GameScreen } from "./GameScreen"
 import { gameActions, gameState, playing } from "./types"
+import { Hue } from "./Hue"
 
 
 
 
-const getInitialState = (): gameState => ({ type: "playing", currentHue: Math.random() * 360, level: 0, life: 0, targetHue: Math.random() * 360 })
+const getInitialState = (): gameState => ({
+	type:       "playing",
+	currentHue: Hue.random(),
+	level:      0,
+	life:       0,
+	targetHue:  Hue.random(),
+})
 
 
 const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {

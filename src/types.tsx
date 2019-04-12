@@ -1,11 +1,16 @@
 // States
+import { Hue } from "./Hue"
+
+
+
+
 export type awaiting = {
 	type: "awaiting"
 }
 export type playing = {
 	type: "playing"
-	currentHue: number,
-	targetHue: number,
+	currentHue: Hue,
+	targetHue: Hue,
 	life: number,
 	level: number
 }
@@ -19,7 +24,7 @@ export type gameState = awaiting | playing | defeated
 // Actions
 export type Action = { readonly type: string }
 
-export type ColorSubmittedAction = { type: "ColorSubmittedAction", payload: number }
+export type ColorSubmittedAction = { type: "ColorSubmittedAction", payload: Hue }
 export type QuitAction = { type: "QuitAction", payload: number }
 
 export type gameActions = ColorSubmittedAction | QuitAction
