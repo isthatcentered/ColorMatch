@@ -4,6 +4,7 @@ import { GameOverScreen } from "./GameOverScreen"
 import { GameScreen } from "./GameScreen"
 import { gameActions, gameState, playing } from "./types"
 import { Hue } from "./Hue"
+import { Brand } from "utility-types"
 
 
 
@@ -26,7 +27,7 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 		case "playing":
 			switch ( action.type ) {
 				case "ColorSubmittedAction":
-					console.log( action )
+					console.log( Score.for( state.targetHue, action.payload ) )
 					return { ...state }
 				
 				case "QuitAction":
@@ -80,3 +81,12 @@ export function App()
 
 
 
+type score = Brand<number, "score">
+
+class Score
+{
+	static for( target: Hue, actual: Hue ): score
+	{
+		return actual.shortestDistanceTo( target ) as score
+	}
+}
