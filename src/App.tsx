@@ -2,16 +2,45 @@ import React, { ReactElement, Reducer, useReducer } from "react"
 import { HomeScreen } from "./HomeScreen"
 import { GameOverScreen } from "./GameOverScreen"
 import { GameScreen } from "./GameScreen"
-import { gameActions, gameState } from "./types"
+import { gameActions, gameState, playing } from "./types"
 
 
 
 
 const getInitialState = (): gameState => ({ type: "playing", currentHue: Math.random() * 360, level: 0, life: 0, targetHue: Math.random() * 360 })
 
+
 const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {
-	console.log( state, action )
-	return { ...state }
+	switch ( state.type ) {
+		case "awaiting":
+			
+			return { ...state }
+		
+		case "playing":
+			switch ( action.type ) {
+				case "ColorSubmittedAction":
+					// computed new score
+					return { ...state }
+				
+				case "QuitAction":
+					return { ...state }
+				
+				default:
+					const shouldNeverBeReached: never = action
+					break;
+			}
+			return { ...state }
+		
+		case "defeated":
+			
+			return { ...state }
+		
+		default:
+			const shouldNeverBeReached: never = state
+			break;
+	}
+	
+	return state
 }
 
 
