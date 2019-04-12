@@ -1,3 +1,4 @@
+// States
 export type awaiting = {
 	type: "awaiting"
 }
@@ -13,4 +14,11 @@ export type defeated = {
 	level: number,
 }
 export type gameState = awaiting | playing | defeated
-export type gameActions = { type: string }
+
+
+// Actions
+export type Action = { readonly type: string }
+
+export type ColorSubmittedAction = { type: "ColorSubmittedAction", payload: number }
+
+export type gameActions = ColorSubmittedAction

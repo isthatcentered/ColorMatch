@@ -1,7 +1,6 @@
-import { playing } from "./types"
+import { gameActions, playing } from "./types"
 import React, { HTMLAttributes } from "react"
 import { useOscillator } from "./hooks"
-import { gameActions } from "./types"
 
 
 
@@ -14,8 +13,14 @@ interface GameScreenProps
 }
 
 
-export function GameScreen( { state: { targetHue, currentHue, level } }: GameScreenProps )
+export function GameScreen( { state: { targetHue, currentHue, level }, dispatch }: GameScreenProps )
 {
+	function handleClickColor( hue: number )
+	{
+		dispatch( { type: "ColorSubmittedAction", payload: hue } )
+	}
+	
+	
 	return (
 		<div className="text-white h-screen flex flex-col">
 			<header className="flex items-center p-4">
@@ -29,6 +34,7 @@ export function GameScreen( { state: { targetHue, currentHue, level } }: GameScr
 				<div className="pt-2"/>
 				
 				<ShiftingColorBox defaultHue={currentHue}
+				                  onColorClick={handleClickColor}
 				                  className="cursor-pointer"/>
 				
 				<button className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
@@ -59,14 +65,24 @@ export function ColorBox( { color, className = "", style = {}, ...props }: Color
 interface ShiftingColorBoxProps
 {
 	defaultHue: number
+	
+	onColorClick( hue: number ): any
 }
 
 
-export function ShiftingColorBox( { defaultHue, ...props }: ShiftingColorBoxProps & HTMLAttributes<HTMLDivElement> )
+export function ShiftingColorBox( { defaultHue, onColorClick, ...props }: ShiftingColorBoxProps & HTMLAttributes<HTMLDivElement> )
 {
 	const hue = 360 * useOscillator( { running: true, defaultValue: (defaultHue / 360), speed: .002 } )
 	
-	return <ColorBox {...props} color={`hsl(${hue}, 100%, 50%)`}/>
+	
+	function handleClick()
+	{
+		onColorClick( hue )
+	}
+	
+	
+	return <ColorBox {...props} color={`hsl(${hue}, 100%, 50%)`}
+	                 onClick={handleClick}/>
 }
 
 
