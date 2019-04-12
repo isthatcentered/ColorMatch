@@ -27,13 +27,15 @@ export interface ShiftingColorBoxProps
 	defaultHue: Hue
 	
 	onColorClick( hue: Hue ): any
+	
+	speed: number
 }
 
 
-export function ShiftingColorBox( { defaultHue, onColorClick, ...props }: ShiftingColorBoxProps & HTMLAttributes<HTMLDivElement> )
+export function ShiftingColorBox( { defaultHue, onColorClick, speed, ...props }: ShiftingColorBoxProps & HTMLAttributes<HTMLDivElement> )
 {
 	const value = useOscillator( {
-		      step:         .8,
+		      speed:        speed,
 		      min:          Hue.MIN,
 		      max:          Hue.MAX,
 		      running:      true,

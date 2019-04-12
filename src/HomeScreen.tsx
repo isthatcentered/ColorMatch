@@ -18,7 +18,7 @@ export function HomeScreen( { dispatch }: HomeScreenProps )
 			        style={{ background: "#ff0044" }}
 			>
 				<h1 className="text-4xl font-bold">Color match!</h1>
-				<p className="ml-auto text-4xl font-bold">Level 1</p>
+				<p className="ml-auto text-4xl font-bold">Level -</p>
 			</header>
 			<main className="text-center flex-grow flex flex-col">
 				<h2 className="uppercase px-4 py-20 flex-grow flex items-center"

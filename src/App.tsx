@@ -23,7 +23,7 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 					return {
 						type:       "playing",
 						currentHue: Hue.random(),
-						level:      1,
+						level:      new Level( { stage: 1, speed: .8 } ),
 						life:       100,
 						targetHue:  Hue.random(),
 					}
@@ -40,9 +40,16 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 					const points = ScorePoints.given( state.targetHue, action.payload ),
 					      life   = Math.min( Math.max( 0, state.life + points ), 100 ) // Math.max 'cause score can be negative
 					
-					return life > 0 ?
-					       { ...state, life } :
-					       { type: "defeated", level: state.level }
+					if ( !life )
+						return { type: "defeated", level: state.level }
+					
+					return {
+						...state,
+						life,
+						targetHue: Hue.random(),
+						level: state.level.next(), // you didn't die, you get to go to the next level
+					}
+				
 				
 				case "QuitGameAction":
 					return {
@@ -121,3 +128,33 @@ class ScorePoints
 	}
 }
 
+export class Level
+{
+	private __stage: number
+	private __speed: number
+	
+	
+	constructor( { stage, speed }: { stage: number, speed: number } )
+	{
+		this.__stage = stage
+		this.__speed = speed
+	}
+	
+	
+	next(): Level
+	{
+		return new Level( { stage: this.__stage + 1, speed: this.__speed * 1.25 } )
+	}
+	
+	
+	toString(): string
+	{
+		return this.__stage.toString()
+	}
+	
+	
+	get speed(): number
+	{
+		return this.__speed
+	}
+}

@@ -27,23 +27,23 @@ function useLoop( { running, callback }: { running: boolean, callback: () => voi
 interface useOscillatorProps
 {
 	running: boolean,
-	step: number,
+	speed: number,
 	defaultValue: number
 	min: number
 	max: number
 }
 
 
-export function useOscillator( { running, step, defaultValue, min, max }: useOscillatorProps ): number
+export function useOscillator( { running, speed, defaultValue, min, max }: useOscillatorProps ): number
 {
 	const [ num, setNum ] = useState<number>( defaultValue ),
 	      callback        = useCallback(
 		      () =>
 			      setNum( num =>
-				      (num + step) >= max ?
+				      (num + speed) >= max ?
 				      min :
-				      num + step ),
-		      [ step ],
+				      num + speed ),
+		      [ speed ],
 	      ) // Maintains the id of the function to avoid useLoop identifying it as new function on every render
 	
 	useLoop( {

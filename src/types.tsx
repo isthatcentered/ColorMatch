@@ -1,5 +1,6 @@
 // States
 import { Hue } from "./Hue"
+import { Level } from "./App"
 
 
 
@@ -12,11 +13,11 @@ export type playing = {
 	currentHue: Hue,
 	targetHue: Hue,
 	life: number,
-	level: number
+	level: Level
 }
 export type defeated = {
 	type: "defeated"
-	level: number,
+	level: Level,
 }
 export type gameState = awaiting | playing | defeated
 
