@@ -18,6 +18,8 @@ export function GameScreen( { state: { targetHue, currentHue, level, life }, dis
 	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
 		dispatch( { type: "ColorSubmittedAction", payload: hue } )
 	
+	const minimumClickableWidth = 10,
+	      boxesWidth            = Math.max( life.value, minimumClickableWidth )
 	
 	return (
 		<div className="text-white h-screen flex flex-col">
@@ -29,7 +31,7 @@ export function GameScreen( { state: { targetHue, currentHue, level, life }, dis
 			<main className="text-center flex-grow flex flex-col items-center px-2">
 				<ColorBox
 					hue={targetHue}
-					style={{ width: `${life}%` }}
+					style={{ width: `${boxesWidth}%` }}
 				/>
 				
 				<div className="pt-2"/>
@@ -39,7 +41,7 @@ export function GameScreen( { state: { targetHue, currentHue, level, life }, dis
 					speed={level.speed}
 					onColorClick={handleClickColor}
 					className="cursor-pointer"
-					style={{ width: `${life}%` }}
+					style={{ width: `${boxesWidth}%` }}
 				/>
 				
 				<button onClick={() => dispatch( { type: "QuitGameAction" } )}

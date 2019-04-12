@@ -1,6 +1,7 @@
 // States
 import { Hue } from "./Hue"
-import { Level } from "./App"
+import { Level} from "./ValueObjects"
+import { Life } from "./ValueObjects"
 
 
 
@@ -12,7 +13,7 @@ export type playing = {
 	type: "playing"
 	currentHue: Hue,
 	targetHue: Hue,
-	life: number,
+	life: Life,
 	level: Level
 }
 export type defeated = {
