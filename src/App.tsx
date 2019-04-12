@@ -26,7 +26,7 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 		case "playing":
 			switch ( action.type ) {
 				case "ColorSubmittedAction":
-					// computed new score
+					console.log( action )
 					return { ...state }
 				
 				case "QuitAction":
