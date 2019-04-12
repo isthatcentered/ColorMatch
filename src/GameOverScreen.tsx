@@ -1,16 +1,18 @@
 import * as React from "react"
-import { defeated } from "./types"
+import { defeated, gameActions } from "./types"
 
 
 
 
 interface GameOverScreenProps
 {
+	dispatch( action: gameActions ): void
+	
 	state: defeated
 }
 
 
-export function GameOverScreen( { state: { level } }: GameOverScreenProps )
+export function GameOverScreen( { state: { level }, dispatch }: GameOverScreenProps )
 {
 	return (
 		<div className="text-white h-screen flex flex-col">
@@ -28,7 +30,8 @@ export function GameOverScreen( { state: { level } }: GameOverScreenProps )
 					</h2>
 					<p className="text-4xl font-bold">You got to level {level}!</p>
 				</div>
-				<button className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
+				<button onClick={() => dispatch( { type: "StartGameAction" } )}
+				        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
 				        style={{ backgroundColor: "#55dd44" }}
 				>
 					Play again

@@ -9,19 +9,29 @@ import { Brand } from "utility-types"
 
 
 
-const getInitialState = (): gameState => ({
-	type:       "playing",
-	currentHue: Hue.random(),
-	level:      0,
-	life:       0,
-	targetHue:  Hue.random(),
-})
+const getInitialState = (): gameState => ({ type: "awaiting" })
 
 
 const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {
+	console.log( state.type, action.type, state, action )
 	switch ( state.type ) {
 		case "awaiting":
-			
+			switch ( action.type ) {
+				case "ColorSubmittedAction":
+				case "QuitGameAction":
+				case "StartGameAction":
+					return {
+						type:       "playing",
+						currentHue: Hue.random(),
+						level:      1,
+						life:       100,
+						targetHue:  Hue.random(),
+					}
+				
+				default:
+					const shouldNeverBeReached: never = action
+					break;
+			}
 			return { ...state }
 		
 		case "playing":
@@ -30,7 +40,12 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 					console.log( Score.for( state.targetHue, action.payload ) )
 					return { ...state }
 				
-				case "QuitAction":
+				case "QuitGameAction":
+					return {
+						type: "awaiting",
+					}
+				
+				case "StartGameAction":
 					return { ...state }
 				
 				default:
@@ -61,14 +76,15 @@ export function App()
 			{((): ReactElement => {
 				switch ( state.type ) {
 					case "awaiting":
-						return <HomeScreen/>
+						return <HomeScreen dispatch={dispatch}/>
 					
 					case "playing":
 						return <GameScreen dispatch={dispatch}
 						                   state={state}/>
 					
 					case "defeated":
-						return <GameOverScreen state={state}/>
+						return <GameOverScreen dispatch={dispatch}
+						                       state={state}/>
 					
 					default:
 						const shouldNotBeReached: never = state

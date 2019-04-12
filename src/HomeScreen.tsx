@@ -1,9 +1,16 @@
 import React from "react"
+import { gameActions } from "./types"
 
 
 
 
-export function HomeScreen()
+interface HomeScreenProps
+{
+	dispatch( action: gameActions ): void
+}
+
+
+export function HomeScreen( { dispatch }: HomeScreenProps )
 {
 	return (
 		<div className="text-white h-screen flex flex-col">
@@ -18,7 +25,8 @@ export function HomeScreen()
 				    style={{ fontSize: 80 }}>
 					Match the colors!
 				</h2>
-				<button className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
+				<button onClick={() => dispatch( { type: "StartGameAction" } )}
+				        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
 				        style={{ backgroundColor: "#55dd44" }}
 				>
 					Start game

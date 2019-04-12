@@ -25,6 +25,7 @@ export type gameState = awaiting | playing | defeated
 export type Action = { readonly type: string }
 
 export type ColorSubmittedAction = { type: "ColorSubmittedAction", payload: Hue }
-export type QuitAction = { type: "QuitAction", payload: number }
+export type QuitGameAction = { type: "QuitGameAction" }
+export type StartGameAction = { type: "StartGameAction" }
 
-export type gameActions = ColorSubmittedAction | QuitAction
+export type gameActions = ColorSubmittedAction | StartGameAction | QuitGameAction

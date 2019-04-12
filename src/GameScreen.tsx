@@ -37,7 +37,8 @@ export function GameScreen( { state: { targetHue, currentHue, level }, dispatch 
 					className="cursor-pointer"
 				/>
 				
-				<button className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
+				<button onClick={() => dispatch( { type: "QuitGameAction" } )}
+				        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
 					Stop
 				</button>
 			</main>
