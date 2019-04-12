@@ -37,8 +37,15 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 		case "playing":
 			switch ( action.type ) {
 				case "ColorSubmittedAction":
-					console.log( Score.given( state.targetHue, action.payload ) )
-					return { ...state }
+					const points = ScorePoints.given( state.targetHue, action.payload ),
+					      life   = Math.min( Math.max( 0, state.life + points ), 100 ) // Math.max 'cause score can be negative
+					
+					
+					console.log( points, life )
+					
+					return life > 0 ?
+					       { ...state, life } :
+					       { type: "defeated", level: state.level }
 				
 				case "QuitGameAction":
 					return {
@@ -99,15 +106,21 @@ export function App()
 
 type score = Brand<number, "score">
 
-class Score
+class ScorePoints
 {
 	static given( target: Hue, actual: Hue ): score
 	{
 		const missedTargetBy   = actual.shortestDistanceTo( target ),
 		      huePoints        = Hue.MAX - missedTargetBy, // given target 50 & actual 49 -> 359
-		      percentagePoints = huePoints * (100 / 360)
+		      percentagePoints = Math.floor( huePoints * (100 / 360) )
 		
-		return Math.floor(percentagePoints) as score
+		if ( percentagePoints >= 100 )
+			return 10 as score
+		
+		else if ( percentagePoints >= 99 )
+			return 5 as score
+		else
+			return -(100 - percentagePoints) as score
 	}
 }
 
