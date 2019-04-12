@@ -37,7 +37,7 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 		case "playing":
 			switch ( action.type ) {
 				case "ColorSubmittedAction":
-					console.log( Score.for( state.targetHue, action.payload ) )
+					console.log( Score.given( state.targetHue, action.payload ) )
 					return { ...state }
 				
 				case "QuitGameAction":
@@ -101,8 +101,13 @@ type score = Brand<number, "score">
 
 class Score
 {
-	static for( target: Hue, actual: Hue ): score
+	static given( target: Hue, actual: Hue ): score
 	{
-		return actual.shortestDistanceTo( target ) as score
+		const missedTargetBy   = actual.shortestDistanceTo( target ),
+		      huePoints        = Hue.MAX - missedTargetBy, // given target 50 & actual 49 -> 359
+		      percentagePoints = huePoints * (100 / 360)
+		
+		return Math.floor(percentagePoints) as score
 	}
 }
+
