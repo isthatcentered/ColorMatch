@@ -1,24 +1,26 @@
-import { useCallback, useLayoutEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 
 
 
 function useLoop( { running, callback }: { running: boolean, callback: () => void } ): void
 {
-	const [ id, setId ] = useState<DOMHighResTimeStamp>( 0 )
-	
-	useLayoutEffect( () => {
+	useEffect( () => {
 		if ( !running )
 			return
 		
-		const _nextId: DOMHighResTimeStamp = window.requestAnimationFrame( () => {
-			callback()
-			
-			setId( _nextId )
-		} )
+		let rafId: DOMHighResTimeStamp
 		
-		return () => window.cancelAnimationFrame( id || 0 )
-	}, [ running, id, callback ] )
+		const loop = () => {
+			rafId = window.requestAnimationFrame( loop )
+			
+			callback() // 🛑 for some reason the call order matters
+		}
+		
+		loop()
+		
+		return () => window.cancelAnimationFrame( rafId )
+	}, [ running, callback ] )
 }
 
 

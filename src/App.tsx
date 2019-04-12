@@ -7,7 +7,7 @@ import { gameActions, gameState } from "./types"
 
 
 
-const getInitialState = (): gameState => ({ type: "playing", currentHue: 0, level: 0, life: 0, targetHue: 0 })
+const getInitialState = (): gameState => ({ type: "playing", currentHue: Math.random()*360, level: 0, life: 0, targetHue: Math.random()*360 })
 
 const appReducer: Reducer<gameState, gameActions> = function (): gameState {
 	return getInitialState()
