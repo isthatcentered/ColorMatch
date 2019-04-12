@@ -12,6 +12,18 @@ import { Brand } from "utility-types"
 const getInitialState = (): gameState => ({ type: "awaiting" })
 
 
+function getStartingPlayingState(): playing
+{
+	return {
+		type:       "playing",
+		currentHue: Hue.random(),
+		level:      new Level( { stage: 1, speed: .8 } ),
+		life:       100,
+		targetHue:  Hue.random(),
+	}
+}
+
+
 const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {
 	console.log( state.type, action.type, state, action )
 	switch ( state.type ) {
@@ -20,13 +32,7 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 				case "ColorSubmittedAction":
 				case "QuitGameAction":
 				case "StartGameAction":
-					return {
-						type:       "playing",
-						currentHue: Hue.random(),
-						level:      new Level( { stage: 1, speed: .8 } ),
-						life:       100,
-						targetHue:  Hue.random(),
-					}
+					return { ...getStartingPlayingState() }
 				
 				default:
 					const shouldNeverBeReached: never = action
@@ -47,7 +53,7 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 						...state,
 						life,
 						targetHue: Hue.random(),
-						level: state.level.next(), // you didn't die, you get to go to the next level
+						level:     state.level.next(), // you didn't die, you get to go to the next level
 					}
 				
 				
@@ -66,7 +72,16 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 			return { ...state }
 		
 		case "defeated":
-			
+			switch ( action.type ) {
+				case "ColorSubmittedAction":
+				case "QuitGameAction":
+				case "StartGameAction":
+					return { type: "playing", ...getStartingPlayingState() }
+				
+				default:
+					const shouldNeverBeReached: never = action
+					break;
+			}
 			return { ...state }
 		
 		default:
@@ -110,7 +125,7 @@ export function App()
 
 type score = Brand<number, "score">
 
-class ScorePoints
+export class ScorePoints
 {
 	static given( target: Hue, actual: Hue ): score
 	{
