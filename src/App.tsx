@@ -9,19 +9,16 @@ import { Level, Life, Points } from "./ValueObjects"
 
 
 
-const getInitialState = (): gameState => ({ type: "awaiting" })
-
-
-function getStartingPlayingState(): playing
-{
-	return {
-		type:       "playing",
-		currentHue: Hue.random(),
-		level:      new Level( { stage: 1, speed: .8 } ),
-		life:       new Life( 100 ),
-		targetHue:  Hue.random(),
-	}
-}
+const getInitialState         = (): gameState => ({ type: "awaiting" }),
+      getStartingPlayingState = (): playing => {
+	      return {
+		      type:       "playing",
+		      currentHue: Hue.random(),
+		      level:      new Level( { stage: 1, speed: .8 } ),
+		      life:       new Life( 100 ),
+		      targetHue:  Hue.random(),
+	      }
+      }
 
 
 const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {
