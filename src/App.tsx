@@ -20,7 +20,14 @@ const getInitialState         = (): gameState => ({ type: "awaiting" }),
 	      }
       }
 
-
+/**
+ * 🛑 Dispatch a "tick" action on every tick
+ * 🛑 1 point of life is lost on every tick
+ * 🛑 1 point of life is lost on every second (aka if x ticks have passed)
+ * 🛑 1 point of life is lost on every second only if wheel had time to revolve
+ * 🛑 Show some kind of "safe" time left
+ * 🛑 Show a white shrine on life lost (key=life)
+ */
 const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {
 	console.log( state.type, action.type, state, action )
 	switch ( state.type ) {
