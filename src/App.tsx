@@ -20,7 +20,7 @@ const getInitialState = (): gameState => {
 }
 
 /**
- * 🛑 Split game screen and playing state
+ * 🛑 Show a white flash on life lost
  * 🛑 Dispatch a "tick" action on every tick
  * 🛑 1 point of life is lost on every tick
  * 🛑 1 point of life is lost on every second (aka if x ticks have passed)
@@ -29,7 +29,6 @@ const getInitialState = (): gameState => {
  * 🛑 Show a white shrine on life lost (key=life)
  */
 const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {
-	console.log( state.life.value )
 	console.log( state.type, action.type, state, action )
 	
 	switch ( state.type ) {
@@ -48,7 +47,7 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 					} catch ( e ) {
 						return {
 							...state,
-							life:      new Life( 0 ),
+							life: new Life( 0 ),
 						}
 						// redirect
 						//return { type: "defeated", level: state.level }
