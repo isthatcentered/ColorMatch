@@ -1,6 +1,5 @@
-import React, { Reducer, useReducer, useState } from "react"
+import React, { Reducer, useReducer } from "react"
 import { HomeScreen } from "./HomeScreen"
-import { GameOverScreen } from "./GameOverScreen"
 import { GameScreen } from "./GameScreen"
 import { gameActions, gameState, playing } from "./types"
 import { Hue } from "./Hue"
@@ -30,7 +29,7 @@ const getInitialState = (): gameState => {
  * 🛑 Show a white shrine on life lost (key=life)
  */
 const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {
-	
+	console.log( state.life.value )
 	console.log( state.type, action.type, state, action )
 	
 	switch ( state.type ) {
@@ -47,6 +46,10 @@ const appReducer: Reducer<gameState, gameActions> = function ( state, action ): 
 							level:     state.level.next(), // you didn't die, you get to go to the next level
 						}
 					} catch ( e ) {
+						return {
+							...state,
+							life:      new Life( 0 ),
+						}
 						// redirect
 						//return { type: "defeated", level: state.level }
 					}
@@ -69,8 +72,6 @@ export function App()
 				<GameScreen path={"/game"}
 				            dispatch={dispatch}
 				            state={state}/>
-				
-				<GameOverScreen path={"game-over"}/>
 			</Router>
 		</div>
 	)

@@ -1,16 +1,15 @@
 import * as React from "react"
-import { defeated } from "./types"
 import { Link, RouteComponentProps } from "@reach/router"
 
 
 
 
-interface GameOverScreenProps  extends RouteComponentProps
+interface GameOverScreenProps extends RouteComponentProps
 {
 }
 
 
-export function GameOverScreen( {  }: GameOverScreenProps )
+export function GameOverScreen( {}: GameOverScreenProps )
 {
 	return (
 		<div className="text-white h-screen flex flex-col">
