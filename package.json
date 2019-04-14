@@ -28,6 +28,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@reach/router": "^1.2.1",
+    "@types/reach__router": "^1.2.4",
     "emotion": "^10.0.9",
     "node-sass": "^4.11.0",
     "tailwindcss": "^0.7.4",

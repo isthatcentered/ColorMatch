@@ -1,7 +1,6 @@
 // States
 import { Hue } from "./Hue"
-import { Level} from "./ValueObjects"
-import { Life } from "./ValueObjects"
+import { Level, Life } from "./ValueObjects"
 
 
 
@@ -20,14 +19,12 @@ export type defeated = {
 	type: "defeated"
 	level: Level,
 }
-export type gameState = awaiting | playing | defeated
+export type gameState = playing
 
 
 // Actions
 export type Action = { readonly type: string }
 
 export type ColorSubmittedAction = { type: "ColorSubmittedAction", payload: Hue }
-export type QuitGameAction = { type: "QuitGameAction" }
-export type StartGameAction = { type: "StartGameAction" }
 
-export type gameActions = ColorSubmittedAction | StartGameAction | QuitGameAction
+export type gameActions = ColorSubmittedAction

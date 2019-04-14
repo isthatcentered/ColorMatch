@@ -1,16 +1,15 @@
 import React from "react"
-import { gameActions } from "./types"
+import { Link, RouteComponentProps } from "@reach/router"
 
 
 
 
-interface HomeScreenProps
+interface HomeScreenProps extends RouteComponentProps
 {
-	dispatch( action: gameActions ): void
 }
 
 
-export function HomeScreen( { dispatch }: HomeScreenProps )
+export function HomeScreen( {}: HomeScreenProps )
 {
 	return (
 		<div className="text-white h-screen flex flex-col">
@@ -25,12 +24,12 @@ export function HomeScreen( { dispatch }: HomeScreenProps )
 				    style={{ fontSize: 80 }}>
 					Match the colors!
 				</h2>
-				<button onClick={() => dispatch( { type: "StartGameAction" } )}
-				        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
-				        style={{ backgroundColor: "#55dd44" }}
+				<Link to="/game"
+					className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
+				      style={{ backgroundColor: "#55dd44" }}
 				>
 					Start game
-				</button>
+				</Link>
 			</main>
 		</div>)
 }

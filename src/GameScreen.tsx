@@ -1,11 +1,12 @@
 import { gameActions, playing } from "./types"
 import React from "react"
 import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
+import { Link, RouteComponentProps } from "@reach/router"
 
 
 
 
-interface GameScreenProps
+interface GameScreenProps  extends RouteComponentProps
 {
 	state: playing
 	
@@ -44,10 +45,10 @@ export function GameScreen( { state: { targetHue, currentHue, level, life }, dis
 					style={{ width: `${boxesWidth}%` }}
 				/>
 				
-				<button onClick={() => dispatch( { type: "QuitGameAction" } )}
+				<Link to={"/"}
 				        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
 					Stop
-				</button>
+				</Link>
 			</main>
 		</div>)
 }
