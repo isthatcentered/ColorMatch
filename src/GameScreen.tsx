@@ -53,9 +53,9 @@ const getInitialState = (): ColorMatchGameStates => {
  * ✅ Dispatch a "tick" action on every tick
  * ✅ 1 point of life is lost on every tick
  * ✅ 1 point of life is lost on every second (aka if x ticks have passed)
- * 🛑 1 point of life is lost on every second only if time since last submit > 5s
- * 🛑 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
- * 🛑 Show some kind of "safe" time left
+ * ✅ 1 point of life is lost on every second only if time since last submit > 5s
+ * ✅ 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
+ * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 Transform hardoced actions into returntype<makeXAction>
  * 🛑 Transitions
  */
@@ -70,11 +70,12 @@ const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state
 				return {
 					...state,
 					life,
-					targetHue: Hue.random(),
-					level:     state.level.next(), // you didn't die, you get to go to the next level
-					status:    life.value < state.life.value ?
-					           "hit" :
-					           "victorious",
+					ticksSinceLastSubmit: 0,
+					targetHue:            Hue.random(),
+					level:                state.level.next(), // you didn't die, you get to go to the next level
+					status:               life.value < state.life.value ?
+					                      "hit" :
+					                      "victorious",
 				}
 			} catch ( e ) {
 				return {
@@ -84,14 +85,17 @@ const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state
 				// redirect
 			}
 		case "TICK":
-			const fiveSecondsHavePassed = state.ticksSinceLastSubmit >= 4
+			const { ticksSinceLastSubmit, level, life } = state,
+			      fiveSecondsHavePassed                 = ticksSinceLastSubmit >= 4,
+			      timeRequiredToReveolveWheel           = (Hue.MAX / level.speed) / 60,
+			      shouldLooseLife                       = ticksSinceLastSubmit >= timeRequiredToReveolveWheel && fiveSecondsHavePassed
 			
 			return {
 				...state,
-				ticksSinceLastSubmit: state.ticksSinceLastSubmit + 1,
-				life:                 fiveSecondsHavePassed ?
-				                      new Life( state.life.value - 1 ) : // @todo: this is dirty, I shoud be able to subtract points or something
-				                      state.life,
+				ticksSinceLastSubmit: ticksSinceLastSubmit + 1,
+				life:                 shouldLooseLife ?
+				                      new Life( life.value - 1 ) : // @todo: this is dirty, I shoud be able to subtract points or something
+				                      life,
 			}
 		
 		case "RESTART":
@@ -125,7 +129,6 @@ export function GameScreen( props: {} & RouteComponentProps )
 	useSeconds( () => {
 		dispatch( { type: "TICK" } )
 	}, [ life, dispatch ] )
-	
 	return life.value ?
 	       (
 		       <div className="text-white h-screen flex flex-col">
