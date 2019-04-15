@@ -49,9 +49,10 @@ const getInitialState = (): ColorMatchGameStates => {
  * ✅ Fix "play again" button on game over screen
  * ✅ Show a white flash on life lost
  * ✅ Dispatch a "tick" action on every tick
- * 🛑 1 point of life is lost on every tick
- * 🛑 1 point of life is lost on every second (aka if x ticks have passed)
- * 🛑 1 point of life is lost on every second only if wheel had time to revolve
+ * ✅ 1 point of life is lost on every tick
+ * ✅ 1 point of life is lost on every second (aka if x ticks have passed)
+ * 🛑 1 point of life is lost on every second only if time since last submit > 5s
+ * 🛑 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
  * 🛑 Show some kind of "safe" time left
  * 🛑 Transform hardoced actions into returntype<makeXAction>
  * 🛑 Transitions
@@ -81,7 +82,10 @@ const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state
 				// redirect
 			}
 		case "TICK":
-			return state
+			return {
+				...state,
+				life: new Life( state.life.value - 1 ),// @todo: this is dirty, I shoud be able to subtract points or something
+			}
 		
 		case "RESTART":
 			return getInitialState()
