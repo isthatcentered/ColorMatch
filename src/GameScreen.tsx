@@ -1,4 +1,4 @@
-import { gameActions, gameState, playing } from "./types"
+import { gameActions } from "./types"
 import React, { Reducer, useReducer } from "react"
 import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
@@ -9,15 +9,26 @@ import { Level, Life, Points } from "./ValueObjects"
 
 
 
-type _playing = {}
-type survival = {}
-type defeated = {}
+type playing = {
+	type: "playing"
+	currentHue: Hue,
+	targetHue: Hue,
+	life: Life,
+	level: Level
+}
+type survival = {
+	type: "survival"
+} & playing
 
-type ColorMatchGameStates = _playing | survival | defeated
+type defeated = {
+	type: "defeated"
+}
+
+type ColorMatchGameStates = playing | survival | defeated
 
 
 
-const getInitialState = (): gameState => {
+const getInitialState = (): playing => {
 	return {
 		type:       "playing",
 		currentHue: Hue.random(),
@@ -37,7 +48,7 @@ const getInitialState = (): gameState => {
  * 🛑 Show some kind of "safe" time left
  * 🛑 Show a white shrine on life lost (key=life)
  */
-const appReducer: Reducer<gameState, gameActions> = function ( state, action ): gameState {
+const appReducer: Reducer<playing, gameActions> = function ( state, action ): playing {
 	console.log( state.type, action.type, state, action )
 	
 	switch ( state.type ) {
@@ -77,13 +88,10 @@ interface GameScreenProps extends RouteComponentProps
 export function GameScreen( {}: GameScreenProps )
 {
 	
-	const [ {life, targetHue, currentHue, level}, dispatch ] = useReducer( appReducer, getInitialState() )
+	const [ { life, targetHue, currentHue, level }, dispatch ] = useReducer( appReducer, getInitialState() )
 	
 	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
 		dispatch( { type: "ColorSubmittedAction", payload: hue } )
-	
-	const minimumClickableWidth = 10,
-	      boxesWidth            = Math.max( life.value, minimumClickableWidth )
 	
 	return life.value ?
 	       (
@@ -96,7 +104,7 @@ export function GameScreen( {}: GameScreenProps )
 			       <main className="text-center flex-grow flex flex-col items-center px-2">
 				       <ColorBox
 					       hue={targetHue}
-					       style={{ width: `${boxesWidth}%` }}
+					       style={{ width: `${life.value}%` }}
 				       />
 				
 				       <div className="pt-2"/>
@@ -106,7 +114,7 @@ export function GameScreen( {}: GameScreenProps )
 					       speed={level.speed}
 					       onColorClick={handleClickColor}
 					       className="cursor-pointer"
-					       style={{ width: `${boxesWidth}%` }}
+					       style={{ width: `${life.value}%` }}
 				       />
 				
 				       <Link to={"/"}
