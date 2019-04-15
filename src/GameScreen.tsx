@@ -1,10 +1,10 @@
-import { gameActions } from "./types"
 import React, { Reducer, useReducer } from "react"
 import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
 import { Hue } from "./Hue"
 import { Level, Life, Points } from "./ValueObjects"
+import { ColorMAtchGameActions } from "./types"
 
 
 
@@ -24,7 +24,12 @@ type defeated = {
 	type: "defeated"
 }
 
-type ColorMatchGameStates = playing | survival | defeated
+type ColorMatchGameStates = {
+	currentHue: Hue,
+	targetHue: Hue,
+	life: Life,
+	level: Level
+}
 
 
 
@@ -38,8 +43,9 @@ const getInitialState = (): playing => {
 	}
 }
 
+
 /**
- * 🛑 Fix "play again" button on game over screen
+ * ✅ Fix "play again" button on game over screen
  * 🛑 Show a white flash on life lost
  * 🛑 Dispatch a "tick" action on every tick
  * 🛑 1 point of life is lost on every tick
@@ -48,50 +54,45 @@ const getInitialState = (): playing => {
  * 🛑 Show some kind of "safe" time left
  * 🛑 Show a white shrine on life lost (key=life)
  */
-const appReducer: Reducer<playing, gameActions> = function ( state, action ): playing {
-	console.log( state.type, action.type, state, action )
+const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state, action ) => {
+	console.log( action.type, state, action )
 	
-	switch ( state.type ) {
-		case "playing":
-			switch ( action.type ) {
-				case "ColorSubmittedAction":
-					try {
-						const life = state.life.take( Points.for( state.targetHue, action.payload ) )
-						
-						return {
-							...state,
-							life,
-							targetHue: Hue.random(),
-							level:     state.level.next(), // you didn't die, you get to go to the next level
-						}
-					} catch ( e ) {
-						return {
-							...state,
-							life: new Life( 0 ),
-						}
-						// redirect
-						//return { type: "defeated", level: state.level }
-					}
+	switch ( action.type ) {
+		case "SUBMIT":
+			try {
+				const life = state.life.take( Points.for( state.targetHue, action.payload ) )
+				
+				return {
+					...state,
+					life,
+					targetHue: Hue.random(),
+					level:     state.level.next(), // you didn't die, you get to go to the next level
+				}
+			} catch ( e ) {
+				return {
+					...state,
+					life: new Life( 0 ),
+				}
+				// redirect
 			}
-			return { ...state }
+		
+		case "RESTART":
+			return getInitialState()
+		
+		default:
+			ensureAllCasesHandled( action )
 	}
 	
 	return state
 }
 
 
-interface GameScreenProps extends RouteComponentProps
+export function GameScreen( props: {} & RouteComponentProps )
 {
-}
-
-
-export function GameScreen( {}: GameScreenProps )
-{
-	
 	const [ { life, targetHue, currentHue, level }, dispatch ] = useReducer( appReducer, getInitialState() )
 	
 	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
-		dispatch( { type: "ColorSubmittedAction", payload: hue } )
+		dispatch( { type: "SUBMIT", payload: hue } )
 	
 	return life.value ?
 	       (
@@ -123,7 +124,12 @@ export function GameScreen( {}: GameScreenProps )
 				       </Link>
 			       </main>
 		       </div>) :
-	       <GameOverScreen/>
+	       <GameOverScreen dispatch={dispatch}/>
 }
 
 
+
+function ensureAllCasesHandled( switchedUpon: never )
+{
+	throw new Error( `Switch case not handled` )
+}

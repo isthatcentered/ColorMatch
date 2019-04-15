@@ -1,13 +1,11 @@
-// States
 import { Hue } from "./Hue"
-import { Level, Life } from "./ValueObjects"
 
 
 
 
-// Actions
 export type Action = { readonly type: string }
 
-export type ColorSubmittedAction = { type: "ColorSubmittedAction", payload: Hue }
+type Submit = { type: "SUBMIT", payload: Hue } & Action
+type Restart = { type: "RESTART" } & Action
 
-export type gameActions = ColorSubmittedAction
+export type ColorMAtchGameActions = Restart | Submit
