@@ -29,6 +29,7 @@ type ColorMatchGameStates = {
 	targetHue: Hue,
 	life: Life,
 	level: Level
+	ticksSinceLastSubmit: number,
 	status: "hit" | "victorious" | "idle"
 }
 
@@ -36,11 +37,12 @@ type ColorMatchGameStates = {
 
 const getInitialState = (): ColorMatchGameStates => {
 	return {
-		currentHue: Hue.random(),
-		level:      new Level( { stage: 1, speed: .8 } ),
-		life:       new Life( 100 ),
-		targetHue:  Hue.random(),
-		status:     "idle",
+		currentHue:           Hue.random(),
+		level:                new Level( { stage: 1, speed: .8 } ),
+		life:                 new Life( 100 ),
+		targetHue:            Hue.random(),
+		ticksSinceLastSubmit: 0,
+		status:               "idle", // @todo: should this be a computed thing, return previous life and let components decide ?
 	}
 }
 
@@ -82,9 +84,14 @@ const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state
 				// redirect
 			}
 		case "TICK":
+			const fiveSecondsHavePassed = state.ticksSinceLastSubmit >= 4
+			
 			return {
 				...state,
-				life: new Life( state.life.value - 1 ),// @todo: this is dirty, I shoud be able to subtract points or something
+				ticksSinceLastSubmit: state.ticksSinceLastSubmit + 1,
+				life:                 fiveSecondsHavePassed ?
+				                      new Life( state.life.value - 1 ) : // @todo: this is dirty, I shoud be able to subtract points or something
+				                      state.life,
 			}
 		
 		case "RESTART":
