@@ -1,4 +1,4 @@
-import React, { Reducer, useReducer } from "react"
+import React, { HTMLAttributes, Reducer, useReducer } from "react"
 import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
@@ -29,24 +29,25 @@ type ColorMatchGameStates = {
 	targetHue: Hue,
 	life: Life,
 	level: Level
+	status: "hit" | "victorious" | "idle"
 }
 
 
 
-const getInitialState = (): playing => {
+const getInitialState = (): ColorMatchGameStates => {
 	return {
-		type:       "playing",
 		currentHue: Hue.random(),
 		level:      new Level( { stage: 1, speed: .8 } ),
 		life:       new Life( 100 ),
 		targetHue:  Hue.random(),
+		status:     "idle",
 	}
 }
 
 
 /**
  * ✅ Fix "play again" button on game over screen
- * 🛑 Show a white flash on life lost
+ * ✅ Show a white flash on life lost
  * 🛑 Dispatch a "tick" action on every tick
  * 🛑 1 point of life is lost on every tick
  * 🛑 1 point of life is lost on every second (aka if x ticks have passed)
@@ -67,6 +68,9 @@ const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state
 					life,
 					targetHue: Hue.random(),
 					level:     state.level.next(), // you didn't die, you get to go to the next level
+					status:    life.value < state.life.value ?
+					           "hit" :
+					           "victorious",
 				}
 			} catch ( e ) {
 				return {
@@ -89,7 +93,7 @@ const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state
 
 export function GameScreen( props: {} & RouteComponentProps )
 {
-	const [ { life, targetHue, currentHue, level }, dispatch ] = useReducer( appReducer, getInitialState() )
+	const [ { life, targetHue, currentHue, level, status }, dispatch ] = useReducer( appReducer, getInitialState() )
 	
 	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
 		dispatch( { type: "SUBMIT", payload: hue } )
@@ -103,6 +107,9 @@ export function GameScreen( props: {} & RouteComponentProps )
 			       </header>
 			
 			       <main className="text-center flex-grow flex flex-col items-center px-2">
+				
+				       {status === "hit" && <Flash key={life.value} style={{zIndex:-1}}/>}
+				
 				       <ColorBox
 					       hue={targetHue}
 					       style={{ width: `${life.value}%` }}
@@ -127,6 +134,11 @@ export function GameScreen( props: {} & RouteComponentProps )
 	       <GameOverScreen dispatch={dispatch}/>
 }
 
+
+function Flash( props: HTMLAttributes<HTMLDivElement> )
+{
+	return (<div {...props} className={`Flash absolute w-full h-full pin pin-top pin-left bg-white pointer-events-none ${props.className}`}/>)
+}
 
 
 function ensureAllCasesHandled( switchedUpon: never )

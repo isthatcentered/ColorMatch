@@ -3,3 +3,18 @@
 body {
 	background: #000;
 }
+
+
+@keyframes flash {
+	0% {
+		opacity: .2;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.Flash {
+	animation: 1.4s flash ease-out;
+	animation-fill-mode: forwards;
+}
