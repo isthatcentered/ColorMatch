@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, Reducer, useReducer } from "react"
+import React, { HTMLAttributes, Reducer, useEffect, useReducer } from "react"
 import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
@@ -48,12 +48,13 @@ const getInitialState = (): ColorMatchGameStates => {
 /**
  * ✅ Fix "play again" button on game over screen
  * ✅ Show a white flash on life lost
- * 🛑 Dispatch a "tick" action on every tick
+ * ✅ Dispatch a "tick" action on every tick
  * 🛑 1 point of life is lost on every tick
  * 🛑 1 point of life is lost on every second (aka if x ticks have passed)
  * 🛑 1 point of life is lost on every second only if wheel had time to revolve
  * 🛑 Show some kind of "safe" time left
- * 🛑 Show a white shrine on life lost (key=life)
+ * 🛑 Transform hardoced actions into returntype<makeXAction>
+ * 🛑 Transitions
  */
 const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state, action ) => {
 	console.log( action.type, state, action )
@@ -79,6 +80,8 @@ const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state
 				}
 				// redirect
 			}
+		case "TICK":
+			return state
 		
 		case "RESTART":
 			return getInitialState()
@@ -91,12 +94,26 @@ const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state
 }
 
 
+function useSeconds( callback: () => void, deps: any[] )
+{
+	useEffect( () => {
+		const _id = setInterval( _ => callback(), 1000 )
+		
+		return () => clearInterval( _id )
+	}, deps )
+}
+
+
 export function GameScreen( props: {} & RouteComponentProps )
 {
 	const [ { life, targetHue, currentHue, level, status }, dispatch ] = useReducer( appReducer, getInitialState() )
 	
 	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
 		dispatch( { type: "SUBMIT", payload: hue } )
+	
+	useSeconds( () => {
+		dispatch( { type: "TICK" } )
+	}, [ life, dispatch ] )
 	
 	return life.value ?
 	       (
@@ -108,7 +125,8 @@ export function GameScreen( props: {} & RouteComponentProps )
 			
 			       <main className="text-center flex-grow flex flex-col items-center px-2">
 				
-				       {status === "hit" && <Flash key={life.value} style={{zIndex:-1}}/>}
+				       {status === "hit" && <Flash key={life.value}
+				                                   style={{ zIndex: -1 }}/>}
 				
 				       <ColorBox
 					       hue={targetHue}
