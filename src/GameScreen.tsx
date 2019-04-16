@@ -1,10 +1,11 @@
-import React, { HTMLAttributes, Reducer, useEffect, useReducer } from "react"
+import React, { HTMLAttributes, Reducer, useReducer } from "react"
 import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
 import { Hue } from "./Hue"
 import { Level, Life, Points } from "./ValueObjects"
 import { ColorMAtchGameActions } from "./types"
+import { useSeconds } from "./useSeconds"
 
 
 
@@ -179,16 +180,6 @@ class DefeatedState implements ColorMatchStateHandler
 const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state, action ) => {
 	
 	return state.__handler.handleEvent( state, action )
-}
-
-
-function useSeconds( callback: () => void, deps: any[] )
-{
-	useEffect( () => {
-		const _id = setInterval( _ => callback(), 1000 )
-		
-		return () => clearInterval( _id )
-	}, deps )
 }
 
 
