@@ -155,7 +155,7 @@ export function GameScreen( props: {} & RouteComponentProps )
 			
 			       <main className="text-center flex-grow flex flex-col items-center px-2">
 				
-				       {status === "hit" && <Flash key={life.value}
+				       {life.value < 100 && <Flash key={life.value}
 				                                   style={{ zIndex: -1 }}/>}
 				
 				       <ColorBox
