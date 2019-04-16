@@ -30,7 +30,8 @@ type ColorMatchGameStates = {
 	life: Life,
 	level: Level
 	ticksSinceLastSubmit: number,
-	status: "hit" | "victorious" | "idle"
+	status: "hit" | "victorious" | "idle",
+	__handler: ColorMatchStateHandler
 }
 
 
@@ -43,6 +44,15 @@ const getInitialState = (): ColorMatchGameStates => {
 		targetHue:            Hue.random(),
 		ticksSinceLastSubmit: 0,
 		status:               "idle", // @todo: should this be a computed thing, return previous life and let components decide ?
+		__handler:            new StartingState(),
+	}
+}
+
+class StartingState implements ColorMatchStateHandler
+{
+	handleEvent( event: ColorMAtchGameActions ): ColorMatchGameStates
+	{
+		return getInitialState()
 	}
 }
 
@@ -59,6 +69,12 @@ const getInitialState = (): ColorMatchGameStates => {
  * 🛑 Transform hardoced actions into returntype<makeXAction>
  * 🛑 Transitions
  */
+
+interface ColorMatchStateHandler
+{
+	handleEvent( event: ColorMAtchGameActions ): ColorMatchGameStates
+}
+
 const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state, action ) => {
 	console.log( action.type, state, action )
 	
