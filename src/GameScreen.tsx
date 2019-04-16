@@ -110,7 +110,7 @@ class StartingNewLevelState implements ColorMatchStateHandler
 	}
 }
 
-class SurvivalState implements ColorMatchStateHandler
+class SurvivalState extends StartingNewLevelState implements ColorMatchStateHandler
 {
 	
 	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
@@ -120,7 +120,7 @@ class SurvivalState implements ColorMatchStateHandler
 				const nextState = new StartingNewLevelState()
 				
 				return {
-					...nextState.handleEvent( state, event ),
+					...super.handleEvent( state, event ),
 					__handler: nextState,
 				}
 			
@@ -144,7 +144,7 @@ class SurvivalState implements ColorMatchStateHandler
 				}
 			
 			case "RESTART":
-				return getInitialState()
+				return super.handleEvent( state, event )
 			
 			default:
 				ensureAllCasesHandled( event )
@@ -154,7 +154,7 @@ class SurvivalState implements ColorMatchStateHandler
 	}
 }
 
-class DefeatedState implements ColorMatchStateHandler
+class DefeatedState extends StartingNewLevelState implements ColorMatchStateHandler
 {
 	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
 	{
@@ -164,7 +164,7 @@ class DefeatedState implements ColorMatchStateHandler
 			case "TICK":
 				break;
 			case "RESTART":
-				return getInitialState()
+				return super.handleEvent( state, event )
 			
 			default:
 				ensureAllCasesHandled( event )
