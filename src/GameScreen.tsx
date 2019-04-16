@@ -9,28 +9,11 @@ import { ColorMAtchGameActions } from "./types"
 
 
 
-type playing = {
-	type: "playing"
-	currentHue: Hue,
-	targetHue: Hue,
-	life: Life,
-	level: Level
-}
-type survival = {
-	type: "survival"
-} & playing
-
-type defeated = {
-	type: "defeated"
-}
-
 type ColorMatchGameStates = {
 	currentHue: Hue,
 	targetHue: Hue,
 	life: Life,
 	level: Level
-	ticksSinceLastSubmit: number,
-	status: "hit" | "victorious" | "idle",
 	__handler: ColorMatchStateHandler
 }
 
@@ -38,13 +21,11 @@ type ColorMatchGameStates = {
 
 const getInitialState = (): ColorMatchGameStates => {
 	return {
-		currentHue:           Hue.random(),
-		level:                new Level( { stage: 1, speed: .8 } ),
-		life:                 new Life( 100 ),
-		targetHue:            Hue.random(),
-		ticksSinceLastSubmit: 0,
-		status:               "idle", // @todo: should this be a computed thing, return previous life and let components decide ?
-		__handler:            new StartingNewLevelState(),
+		currentHue: Hue.random(),
+		level:      new Level( { stage: 1, speed: .8 } ),
+		life:       new Life( 100 ),
+		targetHue:  Hue.random(),
+		__handler:  new StartingNewLevelState(),
 	}
 }
 
@@ -56,6 +37,7 @@ const getInitialState = (): ColorMatchGameStates => {
  * ✅ 1 point of life is lost on every second (aka if x ticks have passed)
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
+ * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
  * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 Transform hardoced actions into returntype<makeXAction>
  * 🛑 Transitions
@@ -67,11 +49,11 @@ interface ColorMatchStateHandler
 }
 
 
-/**
- * 🛑 Switch to survival mode if a revolution or 5 secs have passed
- */
 class StartingNewLevelState implements ColorMatchStateHandler
 {
+	private _ticksSinceLastSubmit: number = 0
+	
+	
 	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
 	{
 		switch ( event.type ) {
@@ -82,32 +64,82 @@ class StartingNewLevelState implements ColorMatchStateHandler
 					return {
 						...state,
 						life,
-						ticksSinceLastSubmit: 0,
-						targetHue:            Hue.random(),
-						level:                state.level.next(), // you didn't die, you get to go to the next level
-						status:               life.value < state.life.value ?
-						                      "hit" :
-						                      "victorious",
+						targetHue: Hue.random(),
+						level:     state.level.next(), // you didn't die, you get to go to the next level
 					}
 				} catch ( e ) {
+					// you went under ☠️
+					const nextState = new DefeatedState()
+					
 					return {
-						...state,
-						life: new Life( 0 ),
+						...nextState.handleEvent( state, event ),
+						__handler: nextState,
 					}
-					// redirect
 				}
 			case "TICK":
-				const { ticksSinceLastSubmit, level, life } = state,
-				      fiveSecondsHavePassed                 = ticksSinceLastSubmit >= 4,
-				      timeRequiredToReveolveWheel           = (Hue.MAX / level.speed) / 60,
-				      shouldLooseLife                       = ticksSinceLastSubmit >= timeRequiredToReveolveWheel && fiveSecondsHavePassed
+				this._ticksSinceLastSubmit++
+				
+				const shoulgGoIntoSurvivalMode = this._haveNthSecondsPassed( 4 ) && this._hadTimeToRevolveHueWheel( state.level.speed )
+				
+				return shoulgGoIntoSurvivalMode ?
+				       {
+					       ...state,
+					       __handler: new SurvivalState(),
+				       } :
+				       state
+			
+			case "RESTART":
+				return getInitialState()
+			
+			default:
+				ensureAllCasesHandled( event )
+		}
+		
+		return state
+	}
+	
+	
+	private _haveNthSecondsPassed = ( seconds: number ): boolean => {
+		return this._ticksSinceLastSubmit >= seconds
+	}
+	
+	private _hadTimeToRevolveHueWheel = ( rotationSpeed: number ): boolean => {
+		const timeRequiredToRevolve = (Hue.MAX / rotationSpeed) / 60
+		return this._ticksSinceLastSubmit >= timeRequiredToRevolve
+	}
+}
+
+class SurvivalState implements ColorMatchStateHandler
+{
+	
+	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
+	{
+		switch ( event.type ) {
+			case "SUBMIT":
+				const nextState = new StartingNewLevelState()
 				
 				return {
-					...state,
-					ticksSinceLastSubmit: ticksSinceLastSubmit + 1,
-					life:                 shouldLooseLife ?
-					                      new Life( life.value - 1 ) : // @todo: this is dirty, I shoud be able to subtract points or something
-					                      life,
+					...nextState.handleEvent( state, event ),
+					__handler: nextState,
+				}
+			
+			case "TICK":
+				let newLife: Life
+				
+				try {
+					newLife = new Life( state.life.value - 1 )
+					return {
+						...state,
+						life: newLife,
+					}
+				} catch ( e ) {
+					// you went under ☠️
+					const nextState = new DefeatedState()
+					
+					return {
+						...nextState.handleEvent( state, event ),
+						__handler: nextState,
+					}
 				}
 			
 			case "RESTART":
@@ -117,22 +149,31 @@ class StartingNewLevelState implements ColorMatchStateHandler
 				ensureAllCasesHandled( event )
 		}
 		
-		
 		return state
 	}
 }
 
-/**
- * 🛑 Loose a point for every tick
- * 🛑 Change to new level state on submit
- */
-class SurvivalState implements ColorMatchStateHandler
+class DefeatedState implements ColorMatchStateHandler
 {
 	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
 	{
-		return state
+		switch ( event.type ) {
+			case "SUBMIT":
+				break;
+			case "TICK":
+				break;
+			case "RESTART":
+				return getInitialState()
+			
+			default:
+				ensureAllCasesHandled( event )
+		}
+		
+		return {
+			...state,
+			life: new Life( 0 ),
+		}
 	}
-	
 }
 
 const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state, action ) => {
@@ -153,7 +194,7 @@ function useSeconds( callback: () => void, deps: any[] )
 
 export function GameScreen( props: {} & RouteComponentProps )
 {
-	const [ { life, targetHue, currentHue, level, status }, dispatch ] = useReducer( appReducer, getInitialState() )
+	const [ { life, targetHue, currentHue, level }, dispatch ] = useReducer( appReducer, getInitialState() )
 	
 	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
 		dispatch( { type: "SUBMIT", payload: hue } )
