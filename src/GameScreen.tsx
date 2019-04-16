@@ -44,7 +44,7 @@ const getInitialState = (): ColorMatchGameStates => {
 		targetHue:            Hue.random(),
 		ticksSinceLastSubmit: 0,
 		status:               "idle", // @todo: should this be a computed thing, return previous life and let components decide ?
-		__handler:            new StartingState(),
+		__handler:            new StartingNewLevelState(),
 	}
 }
 
@@ -67,7 +67,10 @@ interface ColorMatchStateHandler
 }
 
 
-class StartingState implements ColorMatchStateHandler
+/**
+ * 🛑 Switch to survival mode if a revolution or 5 secs have passed
+ */
+class StartingNewLevelState implements ColorMatchStateHandler
 {
 	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
 	{
@@ -117,6 +120,19 @@ class StartingState implements ColorMatchStateHandler
 		
 		return state
 	}
+}
+
+/**
+ * 🛑 Loose a point for every tick
+ * 🛑 Change to new level state on submit
+ */
+class SurvivalState implements ColorMatchStateHandler
+{
+	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
+	{
+		return state
+	}
+	
 }
 
 const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state, action ) => {
