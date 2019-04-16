@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, Reducer, useReducer } from "react"
+import React, { Component, HTMLAttributes, Reducer } from "react"
 import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
@@ -177,22 +177,44 @@ class DefeatedState extends StartingNewLevelState implements ColorMatchStateHand
 	}
 }
 
-const appReducer: Reducer<ColorMatchGameStates, ColorMAtchGameActions> = ( state, action ) => {
+export class GameScreen extends Component<{} & RouteComponentProps>
+{
+	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState()
 	
-	return state.__handler.handleEvent( state, action )
+	state = getInitialState()
+	
+	dispatch = ( event: ColorMAtchGameActions ) => {
+		const newState = this._stateHandler.handleEvent( this.state, event )
+		
+		this._stateHandler = newState.__handler
+		
+		this.setState(
+			newState,
+		)
+	}
+	
+	render()
+	{
+		return <GameScreenView dispatch={this.dispatch.bind( this )} {...this.state}/>
+	}
 }
 
 
-export function GameScreen( props: {} & RouteComponentProps )
+export interface GameScreenViewProps extends ColorMatchGameStates
 {
-	const [ { life, targetHue, currentHue, level }, dispatch ] = useReducer( appReducer, getInitialState() )
-	
+	dispatch: ( event: ColorMAtchGameActions ) => void
+}
+
+
+export function GameScreenView( { life, targetHue, currentHue, level, dispatch }: GameScreenViewProps )
+{
 	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
 		dispatch( { type: "SUBMIT", payload: hue } )
 	
 	useSeconds( () => {
 		dispatch( { type: "TICK" } )
 	}, [ life, dispatch ] )
+	
 	return life.value ?
 	       (
 		       <div className="text-white h-screen flex flex-col">
