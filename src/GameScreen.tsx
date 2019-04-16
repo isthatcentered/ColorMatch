@@ -1,4 +1,4 @@
-import React, { Component, HTMLAttributes, Reducer } from "react"
+import React, { Component, HTMLAttributes } from "react"
 import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
@@ -15,7 +15,6 @@ type ColorMatchGameStates = {
 	targetHue: Hue,
 	life: Life,
 	level: Level
-	__handler: ColorMatchStateHandler
 }
 
 
@@ -26,7 +25,6 @@ const getInitialState = (): ColorMatchGameStates => {
 		level:      new Level( { stage: 1, speed: .8 } ),
 		life:       new Life( 100 ),
 		targetHue:  Hue.random(),
-		__handler:  new StartingNewLevelState(),
 	}
 }
 
@@ -38,65 +36,82 @@ const getInitialState = (): ColorMatchGameStates => {
  * ✅ 1 point of life is lost on every second (aka if x ticks have passed)
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
- * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
- * 🛑 Show some kind of "safe" time bar that decreases
- * 🛑 Transform hardoced actions into returntype<makeXAction>
  * 🛑 Transitions
+ * 🛑 Get rid of statHandler.render()
+ * 🛑 Show some kind of "safe" time bar that decreases
+ * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
+ * 🛑 Transform hardoced actions into returntype<makeXAction>
  */
-
-interface ColorMatchStateHandler
+interface ColorMatchStateHandler extends ColorMatchGameStates
 {
-	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
+	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchStateHandler
+	
+	render(): ColorMatchGameStates
 }
-
 
 class StartingNewLevelState implements ColorMatchStateHandler
 {
 	private _ticksSinceLastSubmit: number = 0
 	
+	currentHue: Hue
+	level: Level
+	life: Life
+	targetHue: Hue
 	
-	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
+	
+	constructor( { currentHue, level, life, targetHue }: ColorMatchGameStates )
+	{
+		this.currentHue = currentHue
+		this.level = level
+		this.life = life
+		this.targetHue = targetHue
+	}
+	
+	
+	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
-			case "SUBMIT":
-				try {
-					const life = state.life.take( Points.for( state.targetHue, event.payload ) )
-					
-					return {
-						...state,
-						life,
-						targetHue: Hue.random(),
-						level:     state.level.next(), // you didn't die, you get to go to the next level
-					}
-				} catch ( e ) {
-					// you went under ☠️
-					const nextState = new DefeatedState()
-					
-					return {
-						...nextState.handleEvent( state, event ),
-						__handler: nextState,
-					}
-				}
 			case "TICK":
 				this._ticksSinceLastSubmit++
 				
-				const shoulgGoIntoSurvivalMode = this._haveNthSecondsPassed( 4 ) && this._hadTimeToRevolveHueWheel( state.level.speed )
+				const shoulgGoIntoSurvivalMode = this._haveNthSecondsPassed( 4 ) &&
+					this._hadTimeToRevolveHueWheel( state.level.speed )
 				
 				return shoulgGoIntoSurvivalMode ?
-				       {
-					       ...state,
-					       __handler: new SurvivalState(),
-				       } :
-				       state
+				       new SurvivalState( this ) :
+				       this
+			
+			case "SUBMIT":
+				try {
+					this.life = this.life.take( Points.for( this.targetHue, event.payload ) )
+					this.targetHue = Hue.random()
+					this.level = state.level.next() // you didn't die, you get to go to the next level
+					
+					return new StartingNewLevelState( this )
+				} catch ( e ) {
+					this.life = new Life( 0 )
+					return new GameOverState( this )
+				}
 			
 			case "RESTART":
-				return getInitialState()
+				return new StartingNewLevelState( getInitialState() )
 			
 			default:
 				ensureAllCasesHandled( event )
 		}
 		
-		return state
+		return this
+	}
+	
+	
+	render(): ColorMatchGameStates
+	{
+		return {
+			currentHue: this.currentHue,
+			level:      this.level,
+			life:       this.life,
+			targetHue:  this.targetHue,
+		}
 	}
 	
 	
@@ -104,44 +119,30 @@ class StartingNewLevelState implements ColorMatchStateHandler
 		return this._ticksSinceLastSubmit >= seconds
 	}
 	
+	
 	private _hadTimeToRevolveHueWheel = ( rotationSpeed: number ): boolean => {
 		const timeRequiredToRevolve = (Hue.MAX / rotationSpeed) / 60
 		return this._ticksSinceLastSubmit >= timeRequiredToRevolve
 	}
-}
-
-class SurvivalState extends StartingNewLevelState implements ColorMatchStateHandler
-{
 	
-	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
+}
+
+class SurvivalState extends StartingNewLevelState
+{
+	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
-			case "SUBMIT":
-				const nextState = new StartingNewLevelState()
-				
-				return {
-					...super.handleEvent( state, event ),
-					__handler: nextState,
+			case "TICK":
+				try {
+					this.life = new Life( state.life.value - 1 )
+					return this
+				} catch ( e ) {
+					this.life = new Life( 0 )
+					return new GameOverState( this )
 				}
 			
-			case "TICK":
-				let newLife: Life
-				
-				try {
-					newLife = new Life( state.life.value - 1 )
-					return {
-						...state,
-						life: newLife,
-					}
-				} catch ( e ) {
-					// you went under ☠️
-					const nextState = new DefeatedState()
-					
-					return {
-						...nextState.handleEvent( state, event ),
-						__handler: nextState,
-					}
-				}
+			case "SUBMIT":
+				return super.handleEvent( state, event )
 			
 			case "RESTART":
 				return super.handleEvent( state, event )
@@ -150,19 +151,21 @@ class SurvivalState extends StartingNewLevelState implements ColorMatchStateHand
 				ensureAllCasesHandled( event )
 		}
 		
-		return state
+		return super.handleEvent( state, event )
 	}
 }
 
-class DefeatedState extends StartingNewLevelState implements ColorMatchStateHandler
+class GameOverState extends StartingNewLevelState
 {
-	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchGameStates
+	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
-			case "SUBMIT":
-				break;
+			
 			case "TICK":
-				break;
+				return this
+			case "SUBMIT":
+				return this
+			
 			case "RESTART":
 				return super.handleEvent( state, event )
 			
@@ -170,34 +173,30 @@ class DefeatedState extends StartingNewLevelState implements ColorMatchStateHand
 				ensureAllCasesHandled( event )
 		}
 		
-		return {
-			...state,
-			life: new Life( 0 ),
-		}
+		return super.handleEvent( state, event )
 	}
 }
+
 
 export class GameScreen extends Component<{} & RouteComponentProps>
 {
-	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState()
+	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState( getInitialState() )
 	
-	state = getInitialState()
+	state = this._stateHandler.render()
 	
 	dispatch = ( event: ColorMAtchGameActions ) => {
-		const newState = this._stateHandler.handleEvent( this.state, event )
+		this._stateHandler = this._stateHandler.handleEvent( this.state, event )
 		
-		this._stateHandler = newState.__handler
-		
-		this.setState(
-			newState,
-		)
+		this.setState( this._stateHandler.render() )
 	}
+	
 	
 	render()
 	{
 		return <GameScreenView dispatch={this.dispatch.bind( this )} {...this.state}/>
 	}
 }
+
 
 
 export interface GameScreenViewProps extends ColorMatchGameStates
