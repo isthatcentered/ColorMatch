@@ -224,8 +224,13 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 			
 			       <main className="text-center flex-grow flex flex-col items-center px-2">
 				
-				       {life.value < 100 && <Flash key={life.value}
-				                                   style={{ zIndex: -1, background: `hsl(${targetHue.value}, 100%, 50%)` }}/>}
+				       {life.value < 100 &&
+				       <Flash
+					       key={life.value}
+					       style={{
+						       zIndex: -1, background: `hsl(${targetHue.value}, 100%, 50%)`,
+					       }}
+				       />}
 				
 				       <ColorBox
 					       hue={targetHue}
