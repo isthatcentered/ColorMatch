@@ -36,7 +36,7 @@ const getInitialState = (): ColorMatchGameStates => {
  * ✅ 1 point of life is lost on every second (aka if x ticks have passed)
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
- * 🛑 Get rid of statHandler.render()
+ * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
  * 🛑 Transitions
  * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
