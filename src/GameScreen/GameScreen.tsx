@@ -1,33 +1,15 @@
-import React, { Component, HTMLAttributes } from "react"
-import { ColorBox} from "./ColorBox"
-import { Link, RouteComponentProps } from "@reach/router"
+import React from "react"
+import { ColorBox } from "./ColorBox"
+import { Link } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
-import { Hue } from "./ValueObjects"
-import { Level, Life, Points } from "./ValueObjects"
+import { Hue, Level, Life } from "./ValueObjects"
 import { ColorMAtchGameAction } from "./Actions"
 import { useSeconds } from "./hooks"
 import { ShiftingColorBox, ShiftingColorBoxProps } from "./ShiftingColorBox"
+import { Flash } from "./Flash"
 
 
 
-
-type ColorMatchGameStates = {
-	currentHue: Hue,
-	targetHue: Hue,
-	life: Life,
-	level: Level
-}
-
-
-
-const getInitialState = (): ColorMatchGameStates => {
-	return {
-		currentHue: Hue.random(),
-		level:      new Level( { stage: 1, speed: .8 } ),
-		life:       new Life( 100 ),
-		targetHue:  Hue.random(),
-	}
-}
 
 /**
  * ✅ Fix "play again" button on game over screen
@@ -38,171 +20,32 @@ const getInitialState = (): ColorMatchGameStates => {
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
  * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
+ * 🛑 Transitions to game over screen
+ * 🛑 Display death level in game over screen
  * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 Control via keyboard
- * 🛑 Transitions to game over screen
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
  * 🛑 Transform hardoced actions into returntype<makeXAction>
  * 🛑 Can you move computations to a service worker (clearly not worth it but intersting)
  */
-interface ColorMatchStateHandler extends ColorMatchGameStates
-{
-	handleEvent( event: ColorMAtchGameAction ): ColorMatchStateHandler
-	
-	render(): ColorMatchGameStates
+
+export const getInitialState = (): ColorMatchViewModel => {
+	return {
+		currentHue: Hue.random(),
+		level:      new Level( { stage: 1, speed: .8 } ),
+		life:       new Life( 100 ),
+		targetHue:  Hue.random(),
+	}
 }
 
-class StartingNewLevelState implements ColorMatchStateHandler
-{
-	private _ticksSinceLastSubmit: number = 0
-	
-	currentHue: Hue
+export type ColorMatchViewModel = {
+	currentHue: Hue,
+	targetHue: Hue,
+	life: Life,
 	level: Level
-	life: Life
-	targetHue: Hue
-	
-	
-	constructor( { currentHue, level, life, targetHue }: ColorMatchGameStates )
-	{
-		this.currentHue = currentHue
-		this.level = level
-		this.life = life
-		this.targetHue = targetHue
-	}
-	
-	
-	handleEvent( event: ColorMAtchGameAction ): ColorMatchStateHandler
-	{
-		switch ( event.type ) {
-			case "TICK":
-				this._ticksSinceLastSubmit++
-				
-				const shoulgGoIntoSurvivalMode = this._haveNthSecondsPassed( 4 ) &&
-					this._hadTimeToRevolveHueWheel( this.level.speed )
-				
-				return shoulgGoIntoSurvivalMode ?
-				       new SurvivalState( this ) :
-				       this
-			
-			case "SUBMIT":
-				try {
-					this.life = this.life.take( Points.for( this.targetHue, event.payload ) )
-					this.targetHue = Hue.random()
-					this.level = this.level.next() // you didn't die, you get to go to the next level
-					
-					return new StartingNewLevelState( this )
-				} catch ( e ) {
-					this.life = new Life( 0 )
-					return new GameOverState( this )
-				}
-			
-			case "RESTART":
-				return new StartingNewLevelState( getInitialState() )
-			
-			default:
-				ensureAllCasesHandled( event )
-		}
-		
-		return this
-	}
-	
-	
-	render(): ColorMatchGameStates
-	{
-		return {
-			currentHue: this.currentHue,
-			level:      this.level,
-			life:       this.life,
-			targetHue:  this.targetHue,
-		}
-	}
-	
-	
-	private _haveNthSecondsPassed = ( seconds: number ): boolean => {
-		return this._ticksSinceLastSubmit >= seconds
-	}
-	
-	
-	private _hadTimeToRevolveHueWheel = ( rotationSpeed: number ): boolean => {
-		const timeRequiredToRevolve = (Hue.MAX / rotationSpeed) / 60
-		return this._ticksSinceLastSubmit >= timeRequiredToRevolve
-	}
-	
 }
 
-class SurvivalState extends StartingNewLevelState
-{
-	handleEvent( event: ColorMAtchGameAction ): ColorMatchStateHandler
-	{
-		switch ( event.type ) {
-			case "TICK":
-				try {
-					this.life = new Life( this.life.value - 1 )
-					return this
-				} catch ( e ) {
-					this.life = new Life( 0 )
-					return new GameOverState( this )
-				}
-			
-			case "SUBMIT":
-				return super.handleEvent( event )
-			
-			case "RESTART":
-				return super.handleEvent( event )
-			
-			default:
-				ensureAllCasesHandled( event )
-		}
-		
-		return super.handleEvent( event )
-	}
-}
-
-class GameOverState extends StartingNewLevelState
-{
-	handleEvent( event: ColorMAtchGameAction ): ColorMatchStateHandler
-	{
-		switch ( event.type ) {
-			
-			case "TICK":
-				return this
-			case "SUBMIT":
-				return this
-			
-			case "RESTART":
-				return super.handleEvent( event )
-			
-			default:
-				ensureAllCasesHandled( event )
-		}
-		
-		return super.handleEvent( event )
-	}
-}
-
-
-export class GameScreen extends Component<{} & RouteComponentProps>
-{
-	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState( getInitialState() )
-	
-	state = this._stateHandler.render()
-	
-	dispatch = ( event: ColorMAtchGameAction ) => {
-		this._stateHandler = this._stateHandler.handleEvent( event )
-		
-		this.setState( this._stateHandler.render() )
-	}
-	
-	
-	render()
-	{
-		return <GameScreenView dispatch={this.dispatch.bind( this )} {...this.state}/>
-	}
-}
-
-
-
-export interface GameScreenViewProps extends ColorMatchGameStates
+export interface GameScreenViewProps extends ColorMatchViewModel
 {
 	dispatch: ( event: ColorMAtchGameAction ) => void
 }
@@ -260,13 +103,3 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 }
 
 
-function Flash( props: HTMLAttributes<HTMLDivElement> )
-{
-	return (<div {...props} className={`Flash absolute w-full h-full pin pin-top pin-left bg-white pointer-events-none ${props.className}`}/>)
-}
-
-
-function ensureAllCasesHandled( switchedUpon: never )
-{
-	throw new Error( `Switch case not handled` )
-}

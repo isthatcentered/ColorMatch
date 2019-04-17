@@ -1,6 +1,6 @@
 import React from "react"
 import { HomeScreen } from "./HomeScreen"
-import { GameScreen } from "./GameScreen/GameScreen"
+import { GameScreen } from "./GameScreen/GameBehaviors"
 import { Router } from "@reach/router"
 
 
