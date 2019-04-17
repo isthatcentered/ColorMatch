@@ -15,7 +15,7 @@ export function ColorBox( { hue, className = "", style = {}, ...props }: ColorBo
 	return (
 		<div
 			{...props}
-			className={className + ` h-full rounded-xl flex-grow`}
+			className={className + ``}
 			style={{
 				transition:   "width 0.2s ease",
 				...style,

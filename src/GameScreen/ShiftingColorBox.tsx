@@ -10,13 +10,13 @@ export interface ShiftingColorBoxProps
 {
 	defaultHue: Hue
 	
-	onColorClick( hue: Hue ): any
+	onColorSubmit( hue: Hue ): any
 	
 	speed: number
 }
 
 
-export function ShiftingColorBox( { defaultHue, onColorClick, speed, ...props }: ShiftingColorBoxProps & HTMLAttributes<HTMLDivElement> )
+export function ShiftingColorBox( { defaultHue, onColorSubmit, speed, style = {}, ...props }: ShiftingColorBoxProps & HTMLAttributes<HTMLButtonElement> )
 {
 	const value = useOscillator( {
 		      speed:        speed,
@@ -30,10 +30,23 @@ export function ShiftingColorBox( { defaultHue, onColorClick, speed, ...props }:
 	
 	function handleClick()
 	{
-		onColorClick( hue )
+		onColorSubmit( hue )
 	}
 	
 	
-	return <ColorBox {...props} hue={hue}
-	                 onClick={handleClick}/>
+	return (
+		<button
+			{...props}
+			className={`cursor-pointer focus:border-blue-lighter border-4 border-transparent focus:outline-none overflow-hidden ${props.className || ""}`}
+			onClick={handleClick}
+			style={{
+				...style,
+				borderRadius: 25,
+			}}
+		
+		>
+			<ColorBox hue={hue}
+			          className="h-full"
+			/>
+		</button>)
 }

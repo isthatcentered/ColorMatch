@@ -53,8 +53,8 @@ export interface GameScreenViewProps extends ColorMatchViewModel
 
 export function GameScreenView( { life, targetHue, currentHue, level, dispatch }: GameScreenViewProps )
 {
-	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) => dispatch( { type: "SUBMIT", payload: hue } ),
-	      isGameOver: boolean                                     = life.value <= 0
+	const handleClickColor: ShiftingColorBoxProps["onColorSubmit"] = ( hue ) => dispatch( { type: "SUBMIT", payload: hue } ),
+	      isGameOver: boolean                                      = life.value <= 0
 	
 	useSeconds( () => {
 		dispatch( { type: "TICK" } )
@@ -81,6 +81,7 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 				       />}
 				
 				       <ColorBox
+					       className="h-full flex-grow"
 					       hue={targetHue}
 					       style={{ width: `${life.value}%` }}
 				       />
@@ -90,9 +91,9 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 				       <ShiftingColorBox
 					       defaultHue={currentHue}
 					       speed={level.speed}
-					       onColorClick={handleClickColor}
-					       className="cursor-pointer"
+					       onColorSubmit={handleClickColor}
 					       style={{ width: `${life.value}%` }}
+					       className="h-full flex-grow"
 				       />
 				
 				       <Link to={"/"}
@@ -101,7 +102,8 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 				       </Link>
 			       </main>
 		       </div>) :
-	       <GameOverScreen dispatch={dispatch} level={level}/>
+	       <GameOverScreen dispatch={dispatch}
+	                       level={level}/>
 }
 
 
