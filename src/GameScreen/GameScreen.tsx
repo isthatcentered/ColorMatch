@@ -53,14 +53,16 @@ export interface GameScreenViewProps extends ColorMatchViewModel
 
 export function GameScreenView( { life, targetHue, currentHue, level, dispatch }: GameScreenViewProps )
 {
-	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) =>
-		dispatch( { type: "SUBMIT", payload: hue } )
+	const handleClickColor: ShiftingColorBoxProps["onColorClick"] = ( hue ) => dispatch( { type: "SUBMIT", payload: hue } ),
+	      isGameOver: boolean                                     = life.value <= 0
 	
 	useSeconds( () => {
 		dispatch( { type: "TICK" } )
 	}, [ life, dispatch ] )
 	
-	return life.value ?
+	
+	
+	return !isGameOver ?
 	       (
 		       <div className="text-white h-screen flex flex-col">
 			       <header className="flex items-center p-4">
