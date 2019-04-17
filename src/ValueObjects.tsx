@@ -39,7 +39,7 @@ export class Level
 	
 	next(): Level
 	{
-		return new Level( { stage: this.__stage + 1, speed: this.__speed * 1.25 } )
+		return new Level( { stage: this.__stage + 1, speed: this.__speed * 1.15 } )
 	}
 	
 	

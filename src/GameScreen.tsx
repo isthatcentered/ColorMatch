@@ -36,15 +36,15 @@ const getInitialState = (): ColorMatchGameStates => {
  * ✅ 1 point of life is lost on every second (aka if x ticks have passed)
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
- * 🛑 Transitions
  * 🛑 Get rid of statHandler.render()
+ * 🛑 Transitions
  * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
  * 🛑 Transform hardoced actions into returntype<makeXAction>
  */
 interface ColorMatchStateHandler extends ColorMatchGameStates
 {
-	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchStateHandler
+	handleEvent( event: ColorMAtchGameActions ): ColorMatchStateHandler
 	
 	render(): ColorMatchGameStates
 }
@@ -68,14 +68,14 @@ class StartingNewLevelState implements ColorMatchStateHandler
 	}
 	
 	
-	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchStateHandler
+	handleEvent( event: ColorMAtchGameActions ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
 			case "TICK":
 				this._ticksSinceLastSubmit++
 				
 				const shoulgGoIntoSurvivalMode = this._haveNthSecondsPassed( 4 ) &&
-					this._hadTimeToRevolveHueWheel( state.level.speed )
+					this._hadTimeToRevolveHueWheel( this.level.speed )
 				
 				return shoulgGoIntoSurvivalMode ?
 				       new SurvivalState( this ) :
@@ -85,7 +85,7 @@ class StartingNewLevelState implements ColorMatchStateHandler
 				try {
 					this.life = this.life.take( Points.for( this.targetHue, event.payload ) )
 					this.targetHue = Hue.random()
-					this.level = state.level.next() // you didn't die, you get to go to the next level
+					this.level = this.level.next() // you didn't die, you get to go to the next level
 					
 					return new StartingNewLevelState( this )
 				} catch ( e ) {
@@ -129,12 +129,12 @@ class StartingNewLevelState implements ColorMatchStateHandler
 
 class SurvivalState extends StartingNewLevelState
 {
-	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchStateHandler
+	handleEvent( event: ColorMAtchGameActions ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
 			case "TICK":
 				try {
-					this.life = new Life( state.life.value - 1 )
+					this.life = new Life( this.life.value - 1 )
 					return this
 				} catch ( e ) {
 					this.life = new Life( 0 )
@@ -142,22 +142,22 @@ class SurvivalState extends StartingNewLevelState
 				}
 			
 			case "SUBMIT":
-				return super.handleEvent( state, event )
+				return super.handleEvent( event )
 			
 			case "RESTART":
-				return super.handleEvent( state, event )
+				return super.handleEvent( event )
 			
 			default:
 				ensureAllCasesHandled( event )
 		}
 		
-		return super.handleEvent( state, event )
+		return super.handleEvent( event )
 	}
 }
 
 class GameOverState extends StartingNewLevelState
 {
-	handleEvent( state: ColorMatchGameStates, event: ColorMAtchGameActions ): ColorMatchStateHandler
+	handleEvent( event: ColorMAtchGameActions ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
 			
@@ -167,13 +167,13 @@ class GameOverState extends StartingNewLevelState
 				return this
 			
 			case "RESTART":
-				return super.handleEvent( state, event )
+				return super.handleEvent( event )
 			
 			default:
 				ensureAllCasesHandled( event )
 		}
 		
-		return super.handleEvent( state, event )
+		return super.handleEvent( event )
 	}
 }
 
@@ -185,7 +185,7 @@ export class GameScreen extends Component<{} & RouteComponentProps>
 	state = this._stateHandler.render()
 	
 	dispatch = ( event: ColorMAtchGameActions ) => {
-		this._stateHandler = this._stateHandler.handleEvent( this.state, event )
+		this._stateHandler = this._stateHandler.handleEvent( event )
 		
 		this.setState( this._stateHandler.render() )
 	}
