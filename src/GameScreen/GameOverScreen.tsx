@@ -1,13 +1,13 @@
 import * as React from "react"
 import { RouteComponentProps } from "@reach/router"
-import { ColorMAtchGameActions } from "./types"
+import { ColorMAtchGameAction } from "./Actions"
 
 
 
 
 interface GameOverScreenProps extends RouteComponentProps
 {
-	dispatch( action: ColorMAtchGameActions ): void
+	dispatch( action: ColorMAtchGameAction ): void
 }
 
 

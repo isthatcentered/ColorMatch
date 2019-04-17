@@ -1,4 +1,4 @@
-import { Hue } from "./Hue"
+import { Hue } from "./ValueObjects"
 
 
 

@@ -53,3 +53,13 @@ export function useOscillator( { running, speed, defaultValue, min, max }: useOs
 	
 	return num
 }
+
+
+export function useSeconds( callback: () => void, deps: any[] )
+{
+	useEffect( () => {
+		const _id = setInterval( _ => callback(), 1000 )
+		
+		return () => clearInterval( _id )
+	}, deps )
+}

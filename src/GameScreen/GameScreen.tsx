@@ -1,11 +1,12 @@
 import React, { Component, HTMLAttributes } from "react"
-import { ColorBox, ShiftingColorBox, ShiftingColorBoxProps } from "./ColorBox"
+import { ColorBox} from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
-import { Hue } from "./Hue"
+import { Hue } from "./ValueObjects"
 import { Level, Life, Points } from "./ValueObjects"
-import { ColorMAtchGameActions } from "./types"
-import { useSeconds } from "./useSeconds"
+import { ColorMAtchGameAction } from "./Actions"
+import { useSeconds } from "./hooks"
+import { ShiftingColorBox, ShiftingColorBoxProps } from "./ShiftingColorBox"
 
 
 
@@ -42,10 +43,11 @@ const getInitialState = (): ColorMatchGameStates => {
  * 🛑 Transitions to game over screen
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
  * 🛑 Transform hardoced actions into returntype<makeXAction>
+ * 🛑 Can you move computations to a service worker (clearly not worth it but intersting)
  */
 interface ColorMatchStateHandler extends ColorMatchGameStates
 {
-	handleEvent( event: ColorMAtchGameActions ): ColorMatchStateHandler
+	handleEvent( event: ColorMAtchGameAction ): ColorMatchStateHandler
 	
 	render(): ColorMatchGameStates
 }
@@ -69,7 +71,7 @@ class StartingNewLevelState implements ColorMatchStateHandler
 	}
 	
 	
-	handleEvent( event: ColorMAtchGameActions ): ColorMatchStateHandler
+	handleEvent( event: ColorMAtchGameAction ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
 			case "TICK":
@@ -130,7 +132,7 @@ class StartingNewLevelState implements ColorMatchStateHandler
 
 class SurvivalState extends StartingNewLevelState
 {
-	handleEvent( event: ColorMAtchGameActions ): ColorMatchStateHandler
+	handleEvent( event: ColorMAtchGameAction ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
 			case "TICK":
@@ -158,7 +160,7 @@ class SurvivalState extends StartingNewLevelState
 
 class GameOverState extends StartingNewLevelState
 {
-	handleEvent( event: ColorMAtchGameActions ): ColorMatchStateHandler
+	handleEvent( event: ColorMAtchGameAction ): ColorMatchStateHandler
 	{
 		switch ( event.type ) {
 			
@@ -185,7 +187,7 @@ export class GameScreen extends Component<{} & RouteComponentProps>
 	
 	state = this._stateHandler.render()
 	
-	dispatch = ( event: ColorMAtchGameActions ) => {
+	dispatch = ( event: ColorMAtchGameAction ) => {
 		this._stateHandler = this._stateHandler.handleEvent( event )
 		
 		this.setState( this._stateHandler.render() )
@@ -202,7 +204,7 @@ export class GameScreen extends Component<{} & RouteComponentProps>
 
 export interface GameScreenViewProps extends ColorMatchGameStates
 {
-	dispatch: ( event: ColorMAtchGameActions ) => void
+	dispatch: ( event: ColorMAtchGameAction ) => void
 }
 
 
