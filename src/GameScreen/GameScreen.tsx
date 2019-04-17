@@ -21,12 +21,13 @@ import { Flash } from "./Flash"
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
  * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
  * ✅ Display death level in game over screen
+ * ✅ Control via keyboard
  * 🛑 Transitions to game over screen
  * 🛑 Show some kind of "safe" time bar that decreases
- * 🛑 Control via keyboard
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
  * 🛑 Transform hardoced actions into returntype<makeXAction>
  * 🛑 Can you move computations to a service worker (clearly not worth it but intersting)
+ * 🛑 Accessibility labeling
  */
 
 export const getInitialState = (): ColorMatchViewModel => {
