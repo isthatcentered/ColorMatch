@@ -20,8 +20,8 @@ import { Flash } from "./Flash"
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s
  * ✅ 1 point of life is lost on every second only if time since last submit > 5s && wheel had time to revolve
  * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
+ * ✅ Display death level in game over screen
  * 🛑 Transitions to game over screen
- * 🛑 Display death level in game over screen
  * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 Control via keyboard
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
@@ -101,7 +101,7 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 				       </Link>
 			       </main>
 		       </div>) :
-	       <GameOverScreen dispatch={dispatch}/>
+	       <GameOverScreen dispatch={dispatch} level={level}/>
 }
 
 

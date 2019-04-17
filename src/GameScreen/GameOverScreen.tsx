@@ -1,6 +1,7 @@
 import * as React from "react"
 import { RouteComponentProps } from "@reach/router"
 import { ColorMAtchGameAction } from "./Actions"
+import { Level } from "./ValueObjects"
 
 
 
@@ -8,10 +9,12 @@ import { ColorMAtchGameAction } from "./Actions"
 interface GameOverScreenProps extends RouteComponentProps
 {
 	dispatch( action: ColorMAtchGameAction ): void
+	
+	level: Level
 }
 
 
-export function GameOverScreen( { dispatch }: GameOverScreenProps )
+export function GameOverScreen( { level, dispatch }: GameOverScreenProps )
 {
 	return (
 		<div className="text-white h-screen flex flex-col">
@@ -19,7 +22,7 @@ export function GameOverScreen( { dispatch }: GameOverScreenProps )
 			        style={{ background: "#ff0044" }}
 			>
 				<h1 className="text-4xl font-bold">Color match!</h1>
-				<p className="ml-auto text-4xl font-bold">Level @fix</p>
+				<p className="ml-auto text-4xl font-bold">Level {level.toString()}</p>
 			</header>
 			<main className="text-center flex-grow flex flex-col ">
 				<div className="flex-grow flex flex-col justify-around">
@@ -27,7 +30,7 @@ export function GameOverScreen( { dispatch }: GameOverScreenProps )
 					    style={{ fontSize: 80 }}>
 						Game Over
 					</h2>
-					<p className="text-4xl font-bold">You got to level @fix!</p>
+					<p className="text-4xl font-bold">You got to level {level.toString()}!</p>
 				</div>
 				<button onClick={() => dispatch( { type: "RESTART" } )}
 				        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
