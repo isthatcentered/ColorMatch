@@ -17,7 +17,13 @@ export function ColorBox( { hue, className = "", style = {}, ...props }: ColorBo
 		<div
 			{...props}
 			className={className + ` h-full rounded-xl flex-grow`}
-			style={{ background: `hsl(${hue.value}, 100%, 50%)`, borderRadius: 20, ...style }}
+			style={{
+				transition:   "all 0.2s ease",
+				...style,
+				background:   `hsl(${hue.value}, 100%, 50%)`,
+				borderRadius: 20,
+				
+			}}
 		/>)
 }
 
