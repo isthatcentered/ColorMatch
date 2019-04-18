@@ -1,12 +1,13 @@
-import React from "react"
+import React, { Component } from "react"
 import { ColorBox } from "./ColorBox"
-import { Link } from "@reach/router"
+import { Link, RouteComponentProps } from "@reach/router"
 import { GameOverScreen } from "./GameOverScreen"
 import { Hue, Level, Life } from "./ValueObjects"
 import { ColorMAtchGameAction } from "./Actions"
 import { useSeconds } from "./hooks"
 import { ShiftingColorBox, ShiftingColorBoxProps } from "./ShiftingColorBox"
 import { Flash } from "./Flash"
+import { ColorMatchStateHandler, StartingNewLevelState } from "./GameBehaviors"
 
 
 
@@ -108,3 +109,21 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 }
 
 
+export class GameScreen extends Component<{} & RouteComponentProps>
+{
+	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState( getInitialState() )
+	
+	state = this._stateHandler.render()
+	
+	dispatch = ( event: ColorMAtchGameAction ) => {
+		this._stateHandler = this._stateHandler.handleEvent( event )
+		
+		this.setState( this._stateHandler.render() )
+	}
+	
+	
+	render()
+	{
+		return <GameScreenView dispatch={this.dispatch.bind( this )} {...this.state}/>
+	}
+}
