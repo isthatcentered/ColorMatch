@@ -47,6 +47,26 @@ export type ColorMatchViewModel = {
 	level: Level
 }
 
+export class GameScreen extends Component<{} & RouteComponentProps>
+{
+	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState( getInitialState() )
+	
+	state = this._stateHandler.render()
+	
+	dispatch = ( event: ColorMAtchGameAction ) => {
+		this._stateHandler = this._stateHandler.handleEvent( event )
+		
+		this.setState( this._stateHandler.render() )
+	}
+	
+	
+	render()
+	{
+		return <GameScreenView dispatch={this.dispatch.bind( this )} {...this.state}/>
+	}
+}
+
+
 export interface GameScreenViewProps extends ColorMatchViewModel
 {
 	dispatch: ( event: ColorMAtchGameAction ) => void
@@ -105,24 +125,4 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 		       </div>) :
 	       <GameOverScreen dispatch={dispatch}
 	                       level={level}/>
-}
-
-
-export class GameScreen extends Component<{} & RouteComponentProps>
-{
-	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState( getInitialState() )
-	
-	state = this._stateHandler.render()
-	
-	dispatch = ( event: ColorMAtchGameAction ) => {
-		this._stateHandler = this._stateHandler.handleEvent( event )
-		
-		this.setState( this._stateHandler.render() )
-	}
-	
-	
-	render()
-	{
-		return <GameScreenView dispatch={this.dispatch.bind( this )} {...this.state}/>
-	}
 }
