@@ -9,8 +9,7 @@ import { Router } from "@reach/router"
 export function App()
 {
 	return (
-		<div className="App "
-		     style={{ background: "#000" }}>
+		<div className="App" >
 			<Router>
 				<HomeScreen path={"/"}/>
 				<GameScreen path={"/game"}/>

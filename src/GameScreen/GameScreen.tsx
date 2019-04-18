@@ -70,7 +70,6 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 				       <h1 className="text-4xl font-bold">Color match!</h1>
 				       <p className="ml-auto text-4xl font-bold">Level {level.toString()}</p>
 			       </header>
-			
 			       <main className="text-center flex-grow flex flex-col items-center px-2">
 				
 				       {life.value < 100 &&

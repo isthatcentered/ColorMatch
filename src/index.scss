@@ -19,7 +19,7 @@ body {
 }
 
 .fade-in-scale-x {
-	animation: 1s fade-in-scale-x cubic-bezier(0.01, 0.29, 0.56, 0.99);
+	animation: .5s fade-in-scale-x cubic-bezier(0.01, 0.29, 0.56, 0.99);
 }
 
 @keyframes fade-in-scale-x {
@@ -44,6 +44,6 @@ body {
 }
 
 .Flash {
-	animation: 1s flash ease-out;
+	animation: 1s flash ease;
 	animation-fill-mode: forwards;
 }

@@ -41,6 +41,7 @@ export function ShiftingColorBox( { defaultHue, onColorSubmit, speed, style = {}
 			onClick={handleClick}
 			style={{
 				...style,
+				transition:   "width 0.2s ease",
 				borderRadius: 25,
 			}}
 		
