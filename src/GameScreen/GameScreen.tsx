@@ -22,6 +22,11 @@ import { Flash } from "./Flash"
  * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
  * ✅ Display death level in game over screen
  * ✅ Control via keyboard
+ * 🛑 Animations
+ *    🛑 Home Screen
+ *    🛑 Game screen
+ *    🛑 Game over screen
+ *    🛑
  * 🛑 Transitions to game over screen
  * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
