@@ -22,17 +22,12 @@ import { Flash } from "./Flash"
  * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
  * ✅ Display death level in game over screen
  * ✅ Control via keyboard
- * 🛑 Animations
- *    🛑 Home Screen
- *    🛑 Game screen
- *    🛑 Game over screen
- *    🛑
- * 🛑 Transitions to game over screen
+ * 🛑 Victory indicator
  * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
  * 🛑 Transform hardoced actions into returntype<makeXAction>
  * 🛑 Can you move computations to a service worker (clearly not worth it but intersting)
- * 🛑 Accessibility labeling
+ * 🛑 Life system refactor
  */
 
 export const getInitialState = (): ColorMatchViewModel => {
