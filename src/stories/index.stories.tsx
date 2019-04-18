@@ -1,9 +1,9 @@
 import React, { HTMLAttributes } from "react"
 import { storiesOf } from "@storybook/react"
 //@ts-ignore
-import { ColorBox } from "../GameScreen/ColorBox"
-import { Hue } from "../GameScreen/ValueObjects"
+import { Hue, Level, Life } from "../GameScreen/ValueObjects"
 import "../index.scss"
+import { GameScreenView } from "../GameScreen/GameScreen"
 
 
 
@@ -17,11 +17,20 @@ function Display( props: HTMLAttributes<HTMLDivElement> )
 }
 
 
-storiesOf( "ColorBox", module )
-	.add( "with text", () =>
-		<Display>
-			<ColorBox
-				hue={Hue.random()}
-				className="h-64"
-			/>
-		</Display> )
+storiesOf( "GameScreenView", module )
+	.add( "Playing", () =>
+		<GameScreenView
+			level={new Level( { stage: 1, speed: .3 } )}
+			dispatch={() => null}
+			life={new Life( 100 )}
+			currentHue={Hue.random()}
+			targetHue={Hue.random()}
+		/> )
+	.add( "Game over", () =>
+		<GameScreenView
+			level={new Level( { stage: 1, speed: .3 } )}
+			dispatch={() => null}
+			life={new Life( 0 )}
+			currentHue={Hue.random()}
+			targetHue={Hue.random()}
+		/> )

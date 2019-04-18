@@ -1,6 +1,38 @@
 @import "~tailwindcss/dist/tailwind.css";
 
 
+body {
+	background: #000;
+}
+
+.fade-in {
+	animation: 2s fade-in;
+}
+
+@keyframes fade-in {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.fade-in-scale-x {
+	animation: 1s fade-in-scale-x cubic-bezier(0.01, 0.29, 0.56, 0.99);
+}
+
+@keyframes fade-in-scale-x {
+	0% {
+		opacity: 0;
+		transform: scaleX(0);
+	}
+	100% {
+		opacity: 1;
+		transform: scaleX(1);
+	}
+}
+
 
 @keyframes flash {
 	0% {

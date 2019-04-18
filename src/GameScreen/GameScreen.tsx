@@ -85,23 +85,23 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 						       zIndex: -1, background: `hsl(${targetHue.value}, 100%, 50%)`,
 					       }}
 				       />}
-				
-				       <ColorBox
-					       className="h-full flex-grow"
-					       hue={targetHue}
-					       style={{ width: `${life.value}%` }}
-				       />
-				
-				       <div className="pt-2"/>
-				
-				       <ShiftingColorBox
-					       defaultHue={currentHue}
-					       speed={level.speed}
-					       onColorSubmit={handleClickColor}
-					       style={{ width: `${life.value}%` }}
-					       className="h-full flex-grow"
-				       />
-				
+					       
+					       <ColorBox
+						       className="h-full flex-grow fade-in-scale-x"
+						       hue={targetHue}
+						       style={{ width: `${life.value}%` }}
+					       />
+					       
+					       
+					       <div className="pt-2"/>
+					
+					       <ShiftingColorBox
+						       defaultHue={currentHue}
+						       speed={level.speed}
+						       onColorSubmit={handleClickColor}
+						       style={{ width: `${life.value}%` }}
+						       className="h-full flex-grow fade-in-scale-x"
+					       />
 				       <Link to={"/"}
 				             className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
 					       Stop
