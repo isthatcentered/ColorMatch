@@ -1,8 +1,7 @@
 import { ColorMAtchGameAction } from "./Actions"
 import { Hue, Level, Life, Points } from "./ValueObjects"
-import React, { Component } from "react"
-import { RouteComponentProps } from "@reach/router"
-import { ColorMatchViewModel, GameScreenView, getInitialState } from "./GameScreen"
+import React from "react"
+import { ColorMatchViewModel, getInitialState } from "./GameScreen"
 
 
 
@@ -139,25 +138,6 @@ export class GameOverState extends StartingNewLevelState implements ColorMatchSt
 		}
 		
 		return super.handleEvent( event )
-	}
-}
-
-export class GameScreen extends Component<{} & RouteComponentProps>
-{
-	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState( getInitialState() )
-	
-	state = this._stateHandler.render()
-	
-	dispatch = ( event: ColorMAtchGameAction ) => {
-		this._stateHandler = this._stateHandler.handleEvent( event )
-		
-		this.setState( this._stateHandler.render() )
-	}
-	
-	
-	render()
-	{
-		return <GameScreenView dispatch={this.dispatch.bind( this )} {...this.state}/>
 	}
 }
 
