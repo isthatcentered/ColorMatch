@@ -1,6 +1,6 @@
 import React from "react"
 import { HomeScreen } from "./HomeScreen"
-import { GameScreen } from "./GameScreen/GameScreen"
+import { ColorMatch } from "./GameScreen/ColorMatch"
 import { Router } from "@reach/router"
 
 
@@ -12,7 +12,7 @@ export function App()
 		<div className="App" >
 			<Router>
 				<HomeScreen path={"/"}/>
-				<GameScreen path={"/game"}/>
+				<ColorMatch path={"/game"}/>
 			</Router>
 		</div>)
 }

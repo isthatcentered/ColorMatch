@@ -3,7 +3,7 @@ import { storiesOf } from "@storybook/react"
 //@ts-ignore
 import { Hue, Level, Life } from "../GameScreen/ValueObjects"
 import "../index.scss"
-import { GameScreenView } from "../GameScreen/GameScreen"
+import { GameScreen } from "../GameScreen/Screens"
 
 
 
@@ -17,9 +17,9 @@ function Display( props: HTMLAttributes<HTMLDivElement> )
 }
 
 
-storiesOf( "GameScreenView", module )
+storiesOf( "GameScreen", module )
 	.add( "Playing", () =>
-		<GameScreenView
+		<GameScreen
 			level={new Level( { stage: 1, speed: .3 } )}
 			dispatch={() => null}
 			life={new Life( 100 )}
@@ -27,7 +27,7 @@ storiesOf( "GameScreenView", module )
 			targetHue={Hue.random()}
 		/> )
 	.add( "Game over", () =>
-		<GameScreenView
+		<GameScreen
 			level={new Level( { stage: 1, speed: .3 } )}
 			dispatch={() => null}
 			life={new Life( 0 )}

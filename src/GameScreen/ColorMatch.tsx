@@ -1,12 +1,9 @@
 import React, { Component, HTMLAttributes, ReactElement, ReactNode } from "react"
-import { ColorBox } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
 import { Hue, Level, Life } from "./ValueObjects"
 import { ColorMAtchGameAction } from "./Actions"
-import { useSeconds } from "./hooks"
-import { ShiftingColorBox, ShiftingColorBoxProps } from "./ShiftingColorBox"
-import { Flash } from "./Flash"
 import { ColorMatchStateHandler, StartingNewLevelState } from "./GameBehaviors"
+import { GameOverScreen, GameScreen } from "./Screens"
 
 
 
@@ -22,7 +19,8 @@ import { ColorMatchStateHandler, StartingNewLevelState } from "./GameBehaviors"
  * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
  * ✅ Display death level in game over screen
  * ✅ Control via keyboard
- * 🛑 Create shell component
+ * ✅ Create shell component
+ * 🛑 Create GameOverScreen & PlayingScreen & MenuScreen
  * 🛑 Use state reducer to control the views
  * 🛑 Hit flashes as event subscribtion
  * 🛑 Victory feedback as event subscribtion
@@ -51,7 +49,7 @@ export type ColorMatchViewModel = {
 	level: Level
 }
 
-export class GameScreen extends Component<{} & RouteComponentProps>
+export class ColorMatch extends Component<{} & RouteComponentProps>
 {
 	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState( getInitialState() )
 	
@@ -63,82 +61,33 @@ export class GameScreen extends Component<{} & RouteComponentProps>
 		this.setState( this._stateHandler.render() )
 	}
 	
-	
 	render()
 	{
-		return <GameScreenView dispatch={this.dispatch.bind( this )} {...this.state}/>
+		const isGameOver: boolean = this.state.life.value <= 0
+		
+		return (
+			<Shell
+				level={this.state.level}
+				playing={!isGameOver}
+				action={
+					isGameOver ?
+					<button onClick={() => this.dispatch( { type: "RESTART" } )}
+					        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
+					>
+						Play again
+					</button> :
+					<Link
+						to={"/"}
+						className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
+						Stop
+					</Link>
+				}
+			>
+				{isGameOver ?
+				 <GameOverScreen level={this.state.level}/> :
+				 <GameScreen dispatch={this.dispatch.bind( this )} {...this.state}/>}
+			</Shell>)
 	}
-}
-
-
-export interface GameScreenViewProps extends ColorMatchViewModel
-{
-	dispatch: ( event: ColorMAtchGameAction ) => void
-}
-
-
-export function GameScreenView( { life, targetHue, currentHue, level, dispatch }: GameScreenViewProps )
-{
-	const handleClickColor: ShiftingColorBoxProps["onColorSubmit"] = ( hue ) => dispatch( { type: "SUBMIT", payload: hue } ),
-	      isGameOver: boolean                                      = life.value <= 0
-	
-	useSeconds( () => {
-		dispatch( { type: "TICK" } )
-	}, [ life, dispatch ] )
-	
-	return (
-		<Shell level={level}
-		       playing={!isGameOver}
-		       action={
-			       isGameOver ?
-			       <button onClick={() => dispatch( { type: "RESTART" } )}
-			               className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
-			               style={{ backgroundColor: "#55dd44" }}
-			       >
-				       Play again
-			       </button> :
-			       <Link
-				       to={"/"}
-				       className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
-				       Stop
-			       </Link>
-		       }>
-			{isGameOver ?
-			 <div className="flex-grow flex flex-col justify-center">
-				 <h2 className="uppercase px-4 py-4"
-				     style={{ fontSize: 80 }}>
-					 Game Over
-				 </h2>
-				 <p className="text-4xl font-bold">You got to level {level.toString()}!</p>
-			 </div> :
-			 <>
-				 {life.value < 100 &&
-				 <Flash
-					 key={life.value}
-					 style={{
-						 zIndex: -1, background: `hsl(${targetHue.value}, 100%, 50%)`,
-					 }}
-				 />}
-				
-				 <ColorBox
-					 className="h-full flex-grow fade-in-scale-x"
-					 hue={targetHue}
-					 style={{ width: `${life.value}%` }}
-				 />
-				
-				
-				 <div className="pt-2"/>
-				
-				 <ShiftingColorBox
-					 defaultHue={currentHue}
-					 speed={level.speed}
-					 onColorSubmit={handleClickColor}
-					 style={{ width: `${life.value}%` }}
-					 className="h-full flex-grow fade-in-scale-x"
-				 />
-			 </>
-			}
-		</Shell>)
 }
 
 

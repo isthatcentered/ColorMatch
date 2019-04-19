@@ -6,7 +6,11 @@ body {
 }
 
 .fade-in {
-	animation: 2s fade-in;
+	animation: fade-in ease;
+}
+
+.adrs-\.3 {
+	animation-duration: .3s;
 }
 
 @keyframes fade-in {
