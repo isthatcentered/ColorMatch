@@ -1,7 +1,6 @@
-import React, { Component } from "react"
+import React, { Component, HTMLAttributes, ReactElement, ReactNode } from "react"
 import { ColorBox } from "./ColorBox"
 import { Link, RouteComponentProps } from "@reach/router"
-import { GameOverScreen } from "./GameOverScreen"
 import { Hue, Level, Life } from "./ValueObjects"
 import { ColorMAtchGameAction } from "./Actions"
 import { useSeconds } from "./hooks"
@@ -87,47 +86,98 @@ export function GameScreenView( { life, targetHue, currentHue, level, dispatch }
 		dispatch( { type: "TICK" } )
 	}, [ life, dispatch ] )
 	
-	
-	
-	return !isGameOver ?
-	       (
-		       <div className="text-white h-screen flex flex-col">
-			       <header className="flex items-center p-4">
-				       <h1 className="text-4xl font-bold">Color match!</h1>
-				       <p className="ml-auto text-4xl font-bold">Level {level.toString()}</p>
-			       </header>
-			       <main className="text-center flex-grow flex flex-col items-center px-2">
+	return (
+		<Shell level={level}
+		       playing={!isGameOver}
+		       action={
+			       isGameOver ?
+			       <button onClick={() => dispatch( { type: "RESTART" } )}
+			               className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
+			               style={{ backgroundColor: "#55dd44" }}
+			       >
+				       Play again
+			       </button> :
+			       <Link
+				       to={"/"}
+				       className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
+				       Stop
+			       </Link>
+		       }>
+			{isGameOver ?
+			 <div className="flex-grow flex flex-col justify-center">
+				 <h2 className="uppercase px-4 py-4"
+				     style={{ fontSize: 80 }}>
+					 Game Over
+				 </h2>
+				 <p className="text-4xl font-bold">You got to level {level.toString()}!</p>
+			 </div> :
+			 <>
+				 {life.value < 100 &&
+				 <Flash
+					 key={life.value}
+					 style={{
+						 zIndex: -1, background: `hsl(${targetHue.value}, 100%, 50%)`,
+					 }}
+				 />}
 				
-				       {life.value < 100 &&
-				       <Flash
-					       key={life.value}
-					       style={{
-						       zIndex: -1, background: `hsl(${targetHue.value}, 100%, 50%)`,
-					       }}
-				       />}
-					       
-					       <ColorBox
-						       className="h-full flex-grow fade-in-scale-x"
-						       hue={targetHue}
-						       style={{ width: `${life.value}%` }}
-					       />
-					       
-					       
-					       <div className="pt-2"/>
-					
-					       <ShiftingColorBox
-						       defaultHue={currentHue}
-						       speed={level.speed}
-						       onColorSubmit={handleClickColor}
-						       style={{ width: `${life.value}%` }}
-						       className="h-full flex-grow fade-in-scale-x"
-					       />
-				       <Link to={"/"}
-				             className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
-					       Stop
-				       </Link>
-			       </main>
-		       </div>) :
-	       <GameOverScreen dispatch={dispatch}
-	                       level={level}/>
+				 <ColorBox
+					 className="h-full flex-grow fade-in-scale-x"
+					 hue={targetHue}
+					 style={{ width: `${life.value}%` }}
+				 />
+				
+				
+				 <div className="pt-2"/>
+				
+				 <ShiftingColorBox
+					 defaultHue={currentHue}
+					 speed={level.speed}
+					 onColorSubmit={handleClickColor}
+					 style={{ width: `${life.value}%` }}
+					 className="h-full flex-grow fade-in-scale-x"
+				 />
+			 </>
+			}
+		</Shell>)
+}
+
+
+function Shell( { action, level, children, playing }: { action: ReactElement, level: Level, children: ReactNode, playing: boolean } )
+{
+	const colors = playing ?
+	               { header: "transparent", footer: "transparent" } :
+	               { header: "#ff0044", footer: "#55dd44" }
+	
+	return (
+		<div className="text-white h-screen flex flex-col">
+			<Header level={level}
+			        style={{ background: colors.header }}/>
+			
+			<main className="text-center flex-grow flex flex-col items-center px-2">
+				{children}
+			</main>
+			
+			<Footer style={{ background: colors.footer }}>
+				{action}
+			</Footer>
+		</div>)
+}
+
+
+function Header( { level, className = "", ...props }: { level: Level } & HTMLAttributes<HTMLDivElement> )
+{
+	return (
+		<header {...props} className={`flex items-center p-4 transition ${className}`}>
+			<h1 className="text-4xl font-bold">Color match!</h1>
+			<p className="ml-auto text-4xl font-bold">Level {level.toString()}</p>
+		</header>)
+}
+
+
+function Footer( { children, className = "", ...props }: { children: ReactElement, } & HTMLAttributes<HTMLDivElement> )
+{
+	return (
+		<div {...props} className={`w-full block transition ${className}`}>
+			{children}
+		</div>)
 }
