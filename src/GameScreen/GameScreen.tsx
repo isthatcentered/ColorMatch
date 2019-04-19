@@ -23,6 +23,10 @@ import { ColorMatchStateHandler, StartingNewLevelState } from "./GameBehaviors"
  * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
  * ✅ Display death level in game over screen
  * ✅ Control via keyboard
+ * 🛑 Create shell component and use state reducer to control the views
+ * 🛑 Hit flashes as event subscribtion
+ * 🛑 Victory feedback as event subscribtion
+ * 🛑 Add victory streak
  * 🛑 Victory indicator
  * 🛑 Show some kind of "safe" time bar that decreases
  * 🛑 If you make >= 99% match in survival mode, you get back the points you lost in survival mode + a bonus
