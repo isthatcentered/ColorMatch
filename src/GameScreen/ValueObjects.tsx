@@ -72,8 +72,8 @@ export class Points
 		if ( percentagePoints >= 100 )
 			return 10 as score
 		
-		else if ( percentagePoints >= 90 )
-			return 5 as score
+		else if ( percentagePoints >= 95 )
+			return 100 - percentagePoints as score
 		else
 			return -(100 - percentagePoints) as score
 	}
@@ -94,7 +94,7 @@ export class Level
 	
 	next(): Level
 	{
-		return new Level( { stage: this.__stage + 1, speed: this.__speed * 1.15 } )
+		return new Level( { stage: this.__stage + 1, speed: Math.min( this.__speed * 1.15, 1.5 ) } )
 	}
 	
 	
@@ -138,6 +138,8 @@ export class Life
 	
 	take( points: ReturnType<typeof Points["for"]> ): Life
 	{
+		console.log( points )
+		
 		const health = Math.min( Math.max( 0, this.__value + points ), 100 ) // Math.max 'cause score can be negative
 		
 		if ( health <= 0 )
