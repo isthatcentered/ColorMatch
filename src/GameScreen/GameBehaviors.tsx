@@ -142,7 +142,7 @@ export class GameOverState extends StartingNewLevelState implements ColorMatchSt
 }
 
 
-function ensureAllCasesHandled( switchedUpon: never )
+export function ensureAllCasesHandled( switchedUpon: never )
 {
 	throw new Error( `Switch case not handled` )
 }

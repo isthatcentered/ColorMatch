@@ -1,8 +1,8 @@
-import React, { Component, HTMLAttributes, ReactElement, ReactNode } from "react"
-import { Link, RouteComponentProps } from "@reach/router"
+import React, { Component, createContext, HTMLAttributes, ReactElement, ReactNode, useContext, useState } from "react"
+import { RouteComponentProps } from "@reach/router"
 import { Hue, Level, Life } from "./ValueObjects"
 import { ColorMAtchGameAction } from "./Actions"
-import { ColorMatchStateHandler, StartingNewLevelState } from "./GameBehaviors"
+import { ColorMatchStateHandler, ensureAllCasesHandled, StartingNewLevelState } from "./GameBehaviors"
 import { GameOverScreen, GameScreen } from "./Screens"
 
 
@@ -49,8 +49,12 @@ export type ColorMatchViewModel = {
 	level: Level
 }
 
-export class ColorMatch extends Component<{} & RouteComponentProps>
+
+export const GameContext = createContext<ColorMatchViewModel & { dispatch: (( event: ColorMAtchGameAction ) => any) }>( {} as any )
+
+export class GameContextProvider extends Component
 {
+	
 	private _stateHandler: ColorMatchStateHandler = new StartingNewLevelState( getInitialState() )
 	
 	state = this._stateHandler.render()
@@ -61,33 +65,62 @@ export class ColorMatch extends Component<{} & RouteComponentProps>
 		this.setState( this._stateHandler.render() )
 	}
 	
+	
 	render()
 	{
-		const isGameOver: boolean = this.state.life.value <= 0
+		const { children } = this.props
 		
 		return (
-			<Shell
-				level={this.state.level}
-				playing={!isGameOver}
-				action={
-					isGameOver ?
-					<button onClick={() => this.dispatch( { type: "RESTART" } )}
-					        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
-					>
-						Play again
-					</button> :
-					<Link
-						to={"/"}
-						className="w-full text-center text-white block p-4 capitalize font-bold text-4xl">
-						Stop
-					</Link>
-				}
-			>
-				{isGameOver ?
-				 <GameOverScreen level={this.state.level}/> :
-				 <GameScreen dispatch={this.dispatch.bind( this )} {...this.state}/>}
-			</Shell>)
+			<GameContext.Provider value={{ ...this.state, dispatch: this.dispatch.bind( this ) }}>
+				{children}
+			</GameContext.Provider>)
 	}
+}
+
+type screens = "home" | "game" | "gameOver"
+
+
+export function ColorMatch( props: {} & RouteComponentProps )
+{
+	const { dispatch, ...gameState } = useContext( GameContext )
+	const [ screen, setScreen ] = useState<screens>( "game" )
+	
+	const actions: Record<screens, { label: string, to: screens }> = {
+		home:     { label: "Start game", to: "game" },
+		game:     { label: "Stop", to: "home" },
+		gameOver: { label: "Retry", to: "game" },
+	}
+	
+	return (
+		<Shell
+			level={gameState.level}
+			playing={screen === "game"}
+			action={
+				<ActionButton
+					label={actions[ screen ].label}
+					handleClick={() => setScreen( actions[ screen ].to )}
+				/>}
+		>
+			{(() => {
+				switch ( screen ) {
+					case "home":
+						return (
+							<h2 className="uppercase px-4 py-20 flex-grow flex items-center"
+							    style={{ fontSize: 80 }}>
+								Match the colors!
+							</h2>)
+					
+					case "game":
+						return <GameScreen dispatch={dispatch} {...gameState}/>
+					
+					case "gameOver":
+						return <GameOverScreen level={gameState.level}/>
+					
+					default:
+						ensureAllCasesHandled( screen )
+				}
+			})()}
+		</Shell>)
 }
 
 
@@ -113,7 +146,19 @@ function Shell( { action, level, children, playing }: { action: ReactElement, le
 }
 
 
-function Header( { level, className = "", ...props }: { level: Level } & HTMLAttributes<HTMLDivElement> )
+function ActionButton( { label, handleClick }: { label: string, handleClick: () => void } )
+{
+	return (
+		<button onClick={handleClick}
+		        className="w-full text-center text-white block p-4 capitalize font-bold text-4xl"
+		>
+			{label}
+		</button>)
+}
+
+
+function Header( { level, className = "", ...props }: { level: Level } & HTMLAttributes<HTMLDivElement>,
+)
 {
 	return (
 		<header {...props} className={`flex items-center p-4 transition ${className}`}>
