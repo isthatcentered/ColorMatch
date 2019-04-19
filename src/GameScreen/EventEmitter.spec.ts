@@ -2,13 +2,14 @@ type listener = ( ...args: any[] ) => any
 
 type unsubscribeFn = () => void
 
-class EventEmitter
+type EventMap = Record<string, any>
+
+class EventEmitter<M extends EventMap>
 {
+	private _listeners: Map<keyof M, listener[]> = new Map<string, listener[]>()
 	
-	_listeners: Map<string, listener[]> = new Map<string, listener[]>()
 	
-	
-	on( event: string, listener: () => any ): unsubscribeFn
+	on<K extends keyof M>( event: K, listener: ( payload: M[K] ) => any ): unsubscribeFn
 	{
 		const alreadyRegistered = this._listeners.get( event ) || []
 		
@@ -21,7 +22,9 @@ class EventEmitter
 	}
 	
 	
-	fire( event: string, payload?: any ): void
+	fire<K extends keyof M>( event: K, payload?: undefined ): void
+	fire<K extends keyof M>( event: K, payload: M[K] ): void
+	fire<K extends keyof M>( event: K, payload: M[K] ): void
 	{
 		if ( this._listeners.has( event ) )
 			this._listeners.get( event )!
@@ -29,9 +32,24 @@ class EventEmitter
 	}
 }
 
+// addEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+// interface WindowEventMap extends GlobalEventHandlersEventMap, WindowEventHandlersEventMap
+// {
+// 	"abort": UIEvent;
+// 	"afterprint": Event;
+// 	"beforeprint": Event;
+// }
+
+interface eventsMap
+{
+	"WAFFLES": undefined
+	"EventWithPayload": { hello: "world" }
+	"A": undefined
+	"B": undefined
+}
 
 describe( `EventEmitter`, () => {
-	let emitter: EventEmitter
+	let emitter: EventEmitter<eventsMap>
 	
 	beforeEach( () => emitter = new EventEmitter() )
 	
@@ -60,12 +78,12 @@ describe( `EventEmitter`, () => {
 			      secondListener = jest.fn()
 			
 			Given( () => {
-				emitter.on( "blah", firstListener )
-				emitter.on( "blah", secondListener )
+				emitter.on( "WAFFLES", firstListener )
+				emitter.on( "WAFFLES", secondListener )
 			} )
 			
 			When( () => {
-				emitter.fire( "blah" )
+				emitter.fire( "WAFFLES" )
 			} )
 			
 			Then( `Calls every subscriber to this event`, () => {
@@ -76,7 +94,7 @@ describe( `EventEmitter`, () => {
 		
 		Scenario( `No subscribers`, () => {
 			test( `Doesn't crash`, () => {
-				expect( () => emitter.fire( "blah" ) ).not.toThrow()
+				expect( () => emitter.fire( "WAFFLES" ) ).not.toThrow()
 			} )
 		} )
 	} )
@@ -87,28 +105,28 @@ describe( `EventEmitter`, () => {
 		let unsubscribe: unsubscribeFn
 		
 		Given( () => {
-			unsubscribe = emitter.on( "blah", listener )
+			unsubscribe = emitter.on( "WAFFLES", listener )
 		} )
 		
 		Then( `Event is not called anymore after unsubscribing`, () => {
 			unsubscribe()
 			
-			emitter.fire( "blah" )
+			emitter.fire( "WAFFLES" )
 			
 			expect( listener ).not.toHaveBeenCalled()
 		} )
 	} )
 	
 	Feature( `A payload can be passed to the event`, () => {
-		const listener = jest.fn(),
-		      payload  = "payload"
+		const listener                               = jest.fn(),
+		      payload: eventsMap["EventWithPayload"] = { hello: "world" }
 		
 		Given( () => {
-			emitter.on( "blah", listener )
+			emitter.on( "EventWithPayload", listener )
 		} )
 		
 		When( () => {
-			emitter.fire( "blah", payload )
+			emitter.fire( "EventWithPayload", payload )
 		} )
 		
 		Then( `Listener should be passed the payload`, () => {
@@ -116,7 +134,31 @@ describe( `EventEmitter`, () => {
 		} )
 	} )
 	
-	// typing/mapping event -> payload {[event: ""|""|""]: paylaod[ev]
+	Feature( `Typehinting payload`, () => {
+		Scenario( `No payload`, () => {
+			Then( `I can fire the event without passing undefined`, () => {
+				const emitter: EventEmitter<{ "Event": undefined }> = new EventEmitter()
+				emitter.fire( "Event" )
+			} )
+		} )
+		
+		Scenario( `Payload defined`, () => {
+			const emitter: EventEmitter<{ "Event": { hello: "world" } }> = new EventEmitter()
+			
+			Then( `Triggering the event requires the payload`, () => {
+				emitter.fire( "Event", { hello: "world" } )
+				emitter.fire( "Event" )
+			} )
+			
+			And( `The listener know the payload type`, () => {
+				emitter.on( "Event", ( e ) => {
+					e.hello
+				} )
+			} )
+		} )
+	} )
+	
+	// 🛑 Switch to removeEventListener pattern ?
 } )
 
 
