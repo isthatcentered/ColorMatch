@@ -1,7 +1,6 @@
 import React from "react"
-import { HomeScreen } from "./HomeScreen"
-import { ColorMatch, GameContextProvider } from "./GameScreen/ColorMatch"
-import { Router } from "@reach/router"
+import { ColorMatch} from "./GameScreen/Components/ColorMatch"
+import { GameContextProvider } from "./GameScreen/GameContext"
 
 
 
@@ -11,10 +10,7 @@ export function App()
 	return (
 		<div className="App">
 			<GameContextProvider>
-				<Router>
-					<HomeScreen path={"/"}/>
-					<ColorMatch path={"/game"}/>
-				</Router>
+				<ColorMatch/>
 			</GameContextProvider>
 		</div>)
 }

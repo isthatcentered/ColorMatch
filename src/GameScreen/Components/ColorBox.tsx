@@ -1,5 +1,5 @@
 import React, { HTMLAttributes } from "react"
-import { Hue } from "./ValueObjects"
+import { Hue } from "../ValueObjects"
 
 
 

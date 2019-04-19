@@ -1,6 +1,6 @@
 import React, { HTMLAttributes } from "react"
-import { useOscillator } from "./hooks"
-import { Hue } from "./ValueObjects"
+import { useOscillator } from "../hooks"
+import { Hue } from "../ValueObjects"
 import { ColorBox } from "./ColorBox"
 
 

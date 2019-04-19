@@ -72,7 +72,7 @@ export class Points
 		if ( percentagePoints >= 100 )
 			return 10 as score
 		
-		else if ( percentagePoints >= 99 )
+		else if ( percentagePoints >= 90 )
 			return 5 as score
 		else
 			return -(100 - percentagePoints) as score

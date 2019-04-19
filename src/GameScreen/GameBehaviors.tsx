@@ -1,7 +1,8 @@
 import { ColorMAtchGameAction } from "./Actions"
 import { Hue, Level, Life, Points } from "./ValueObjects"
 import React from "react"
-import { ColorMatchViewModel, getInitialState } from "./ColorMatch"
+import { getInitialState } from "./GameContext"
+import { ColorMatchViewModel } from "./GameContext"
 
 
 
