@@ -6,6 +6,7 @@ import { GameContext } from "../GameContext"
 
 
 
+
 /**
  * 🛑 Add victory streak
  * 🛑 Hit flashes as event subscribtion
@@ -19,7 +20,7 @@ import { GameContext } from "../GameContext"
 export function ColorMatch( props: {} )
 {
 	const { dispatch, level }          = useContext( GameContext ),
-	      [ screen, setScreen ]        = useState<screens>( "game" ),
+	      [ screen, setScreen ]        = useState<screens>( "home" ),
 	      config: ColorMatchViewConfig = {
 		      home:     {
 			      label:   "Start game",
