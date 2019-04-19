@@ -1,7 +1,5 @@
 type listener = ( ...args: any[] ) => any
 
-type unsubscribeFn = () => void
-
 type EventMap = Record<string, any>
 
 class EventEmitter<M extends EventMap>
@@ -9,36 +7,32 @@ class EventEmitter<M extends EventMap>
 	private _listeners: Map<keyof M, listener[]> = new Map<string, listener[]>()
 	
 	
-	on<K extends keyof M>( event: K, listener: ( payload: M[K] ) => any ): unsubscribeFn
+	on<K extends keyof M>( event: K, listener: ( payload: M[K] ) => any ): void
 	{
-		const alreadyRegistered = this._listeners.get( event ) || []
-		
-		this._listeners.set( event, [ ...alreadyRegistered, listener ] )
-		
-		return () => {
-			const subscribed = this._listeners.get( event )! // we do have a listener, we just added one
-			this._listeners.set( event, subscribed.filter( l => l !== listener ) )
-		}
+		this._listeners.set( event, [ ...this._safeGetListeners( event ), listener ] )
 	}
 	
 	
-	fire<K extends keyof M>( event: K, payload?: undefined ): void
-	fire<K extends keyof M>( event: K, payload: M[K] ): void
 	fire<K extends keyof M>( event: K, payload: M[K] ): void
 	{
-		if ( this._listeners.has( event ) )
-			this._listeners.get( event )!
-				.forEach( l => l( payload ) )
+		this._safeGetListeners( event )
+			.forEach( l => l( payload ) )
+	}
+	
+	
+	removeListener<K extends keyof M>( event: K, listener: listener )
+	{
+		const newSubscribersList = this._safeGetListeners( event ).filter( s => s !== listener )
+		
+		this._listeners.set( event, newSubscribersList )
+	}
+	
+	
+	private _safeGetListeners( event: keyof M ): listener[]
+	{
+		return this._listeners.get( event ) || []
 	}
 }
-
-// addEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-// interface WindowEventMap extends GlobalEventHandlersEventMap, WindowEventHandlersEventMap
-// {
-// 	"abort": UIEvent;
-// 	"afterprint": Event;
-// 	"beforeprint": Event;
-// }
 
 interface eventsMap
 {
@@ -64,7 +58,7 @@ describe( `EventEmitter`, () => {
 			} )
 			
 			When( () => {
-				emitter.fire( "A" )
+				emitter.fire( "A", undefined )
 			} )
 			
 			Then( `Only subscribers to the fired "A" event are called`, () => {
@@ -83,7 +77,7 @@ describe( `EventEmitter`, () => {
 			} )
 			
 			When( () => {
-				emitter.fire( "WAFFLES" )
+				emitter.fire( "WAFFLES", undefined )
 			} )
 			
 			Then( `Calls every subscriber to this event`, () => {
@@ -94,7 +88,7 @@ describe( `EventEmitter`, () => {
 		
 		Scenario( `No subscribers`, () => {
 			test( `Doesn't crash`, () => {
-				expect( () => emitter.fire( "WAFFLES" ) ).not.toThrow()
+				expect( () => emitter.fire( "WAFFLES", undefined ) ).not.toThrow()
 			} )
 		} )
 	} )
@@ -102,16 +96,14 @@ describe( `EventEmitter`, () => {
 	Feature( `I can unsubscribe from an EventEmitter`, () => {
 		const listener = jest.fn()
 		
-		let unsubscribe: unsubscribeFn
-		
 		Given( () => {
-			unsubscribe = emitter.on( "WAFFLES", listener )
+			emitter.on( "WAFFLES", listener )
 		} )
 		
 		Then( `Event is not called anymore after unsubscribing`, () => {
-			unsubscribe()
+			emitter.removeListener( "WAFFLES", listener )
 			
-			emitter.fire( "WAFFLES" )
+			emitter.fire( "WAFFLES", undefined )
 			
 			expect( listener ).not.toHaveBeenCalled()
 		} )
@@ -138,7 +130,7 @@ describe( `EventEmitter`, () => {
 		Scenario( `No payload`, () => {
 			Then( `I can fire the event without passing undefined`, () => {
 				const emitter: EventEmitter<{ "Event": undefined }> = new EventEmitter()
-				emitter.fire( "Event" )
+				emitter.fire( "Event", undefined )
 			} )
 		} )
 		
@@ -147,7 +139,6 @@ describe( `EventEmitter`, () => {
 			
 			Then( `Triggering the event requires the payload`, () => {
 				emitter.fire( "Event", { hello: "world" } )
-				emitter.fire( "Event" )
 			} )
 			
 			And( `The listener know the payload type`, () => {
@@ -157,8 +148,6 @@ describe( `EventEmitter`, () => {
 			} )
 		} )
 	} )
-	
-	// 🛑 Switch to removeEventListener pattern ?
 } )
 
 
