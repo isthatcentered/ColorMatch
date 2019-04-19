@@ -23,7 +23,8 @@ import { ColorMatchStateHandler, StartingNewLevelState } from "./GameBehaviors"
  * ✅ Get rid of statHandler.render() -> cannot [this.handleEvent not defined]
  * ✅ Display death level in game over screen
  * ✅ Control via keyboard
- * 🛑 Create shell component and use state reducer to control the views
+ * 🛑 Create shell component
+ * 🛑 Use state reducer to control the views
  * 🛑 Hit flashes as event subscribtion
  * 🛑 Victory feedback as event subscribtion
  * 🛑 Add victory streak
